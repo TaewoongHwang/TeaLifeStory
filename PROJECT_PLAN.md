@@ -107,7 +107,8 @@ workspace에는 앞선 작업으로 만든 Vue PWA MVP가 이미 있다. `packag
 - 변경: 브라우저 테스트의 기본 경로를 실제 repository 경로 `/TeaLifeStory/`로 맞추고 `TEST_BASE_PATH`로 변경 가능하게 구성. README의 원격과 배포 상태 갱신.
 - 검증: `/TeaLifeStory/`로 `npm run build` 통과, `npm run lint` 통과, `npm test` 8개 통과, 해당 경로에서 `npm run test:e2e` 6개 통과.
 - 배포: Pages API가 HTTP 422와 `Your current plan does not support GitHub Pages for this repository.`를 반환함.
-- 남은 작업: 저장소 공개 전환에 대한 사용자 선택, 프로젝트 커밋·push, Pages 활성화·Actions 결과와 실제 사이트 검증.
+- 원격 반영: 준비 커밋 `07b5a3c`를 비공개 `origin/main`에 push 완료. 기존 초기 커밋 `7f8f3a8`을 보존함. 요금제 제한이 해결되기 전 배포 실패를 피하려고 준비 커밋에 `[skip ci]`를 사용함.
+- 남은 작업: 저장소 공개 전환에 대한 사용자 선택, Pages 활성화·Actions 실행·결과와 실제 사이트 검증.
 
 ### 이후 작업 기록 양식
 

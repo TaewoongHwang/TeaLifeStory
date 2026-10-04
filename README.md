@@ -70,9 +70,11 @@ DB 이름은 `tea-life-story`, 버전은 `1`입니다. `entries`, `categories`, 
 
 ## GitHub Pages 배포
 
-연결할 저장소는 [TaewoongHwang/TeaLifeStory](https://github.com/TaewoongHwang/TeaLifeStory)이며, 원격 주소는 `https://github.com/TaewoongHwang/TeaLifeStory.git`입니다. 원격 `main`의 초기 README 커밋을 보존하면서 로컬 프로젝트를 연결합니다.
+연결된 저장소는 [TaewoongHwang/TeaLifeStory](https://github.com/TaewoongHwang/TeaLifeStory)이며, 원격 주소는 `https://github.com/TaewoongHwang/TeaLifeStory.git`입니다. 원격 `main`의 초기 README 커밋을 보존하면서 로컬 프로젝트를 연결하고, 앱과 개발 문서를 `main`에 push했습니다.
 
 2026-10-05 확인 시 저장소는 비공개이고 현재 GitHub 요금제에서 이 저장소의 Pages 활성화가 거부되었습니다. 저장소 공개 전환에 대한 사용자 선택이 필요하며, Pages 배포는 아직 완료되지 않았습니다. 배포 성공 이후 실제 URL을 이 문서에 기록합니다.
+
+준비 커밋 `07b5a3c`는 `[skip ci]`로 push했습니다. Pages 활성화가 불가능한 상태에서 배포 작업이 실패하지 않도록 했으며, Pages 사용 가능 상태가 된 뒤 Actions에서 `Deploy Tea Life Story to Pages`를 수동 실행하거나 다음 일반 커밋을 `main`에 push하면 됩니다.
 
 1. GitHub 원격 저장소를 연결하고 구현 파일을 `main` 브랜치에 push합니다.
 2. GitHub 저장소 Settings → Pages → Source를 **GitHub Actions**로 설정합니다.
