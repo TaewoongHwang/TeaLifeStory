@@ -7,10 +7,10 @@ export function createEntry() {
   return {
     id: crypto.randomUUID(), createdAt: now.toISOString(), updatedAt: now.toISOString(),
     tea: { name: '', category: '', amount: null, amountUnit: 'g' },
-    brewing: { tool: '', material: '', volume: null, volumeUnit: 'cc' },
+    brewing: { tool: '', material: '', volume: null, volumeUnit: 'cc', waterTemperature: null, steepTime: null },
     context: { date: localDate(now), time: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`, location: '', people: '', reason: '' },
     experience: { rating: 0, body: '', aroma: '', taste: '', aftertaste: '', feeling: '', notes: '' },
-    photos: [], tags: [],
+    photos: [], tags: [], favorite: false,
   }
 }
 
@@ -18,7 +18,12 @@ export const clone = (value) => JSON.parse(JSON.stringify(value))
 export function normalizeEntry(value) {
   const entry = clone(value)
   if (entry.tea.amount === '') entry.tea.amount = null
-  if (entry.brewing.volume === '') entry.brewing.volume = null
+  for (const key of ['volume', 'waterTemperature', 'steepTime']) {
+    if (!Object.hasOwn(entry.brewing, key) || entry.brewing[key] === '') entry.brewing[key] = null
+  }
+  if (!Object.hasOwn(entry, 'favorite')) entry.favorite = false
+  // Preserve existing photos while accepting the MVP model without attachments.
+  if (!Object.hasOwn(entry, 'photos')) entry.photos = []
   return entry
 }
 export const entryDate = (entry) => `${entry.context.date}T${entry.context.time || '00:00'}`
@@ -38,11 +43,11 @@ export function summarize(entries, month = localDate().slice(0, 7)) {
   return { count: current.length, average: rated.length ? (rated.reduce((sum, entry) => sum + entry.experience.rating, 0) / rated.length).toFixed(1) : '—', categories, favorite: categories[0]?.[0] || '—' }
 }
 
-export function filterEntries(entries, { search = '', category = '', rating = '', from = '', to = '', sort = 'newest' } = {}) {
+export function filterEntries(entries, { search = '', category = '', rating = '', from = '', to = '', sort = 'newest', favoritesOnly = false } = {}) {
   const query = search.trim().toLocaleLowerCase()
   return entries.filter((entry) => {
     const haystack = [entry.tea.name, entry.experience.notes, entry.experience.feeling, ...entry.tags].join(' ').toLocaleLowerCase()
-    return (!query || haystack.includes(query)) && (!category || entry.tea.category === category) &&
+    return (!favoritesOnly || entry.favorite === true) && (!query || haystack.includes(query)) && (!category || entry.tea.category === category) &&
       (rating === '' || entry.experience.rating === Number(rating)) &&
       (!from || entry.context.date >= from) && (!to || entry.context.date <= to)
   }).sort((a, b) => {

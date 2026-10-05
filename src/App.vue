@@ -20,8 +20,19 @@ async function initialize() {
   try { await Promise.all([entries.load(), settings.load()]); ready.value = true }
   catch { error.value = '저장소를 열지 못했습니다. 브라우저의 저장 공간과 개인정보 보호 설정을 확인해 주세요.' }
 }
-onMounted(() => { initialize(); window.addEventListener('online', updateConnection); window.addEventListener('offline', updateConnection) })
-onUnmounted(() => { window.removeEventListener('online', updateConnection); window.removeEventListener('offline', updateConnection) })
+onMounted(() => {
+  initialize()
+  window.addEventListener('online', updateConnection)
+  window.addEventListener('offline', updateConnection)
+  window.addEventListener('beforeinstallprompt', app.captureInstallPrompt)
+  window.addEventListener('appinstalled', app.markInstalled)
+})
+onUnmounted(() => {
+  window.removeEventListener('online', updateConnection)
+  window.removeEventListener('offline', updateConnection)
+  window.removeEventListener('beforeinstallprompt', app.captureInstallPrompt)
+  window.removeEventListener('appinstalled', app.markInstalled)
+})
 </script>
 <template>
   <div class="app-shell">

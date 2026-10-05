@@ -1,10 +1,12 @@
 import 'fake-indexeddb/auto'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { createPinia, setActivePinia } from 'pinia'
 import { getDB, storeNames } from '../src/db/index.js'
 import { listEntries, putEntry, removeEntry } from '../src/db/entries.js'
-import { importBackup, exportBackup, validateBackup } from '../src/db/backup.js'
-import { setSetting } from '../src/db/settings.js'
+import { importBackup, exportBackup, validateBackup, validateEntry } from '../src/db/backup.js'
+import { setSetting, getSetting } from '../src/db/settings.js'
+import { useEntryStore } from '../src/stores/entryStore.js'
 import { defaults } from '../src/config/defaults.js'
 import { normalizeBase } from '../src/config/base.js'
 import { createEntry, filterEntries, summarize, localDate, normalizeEntry } from '../src/utils/entry.js'
@@ -57,6 +59,26 @@ test('malformed backup is rejected before replacing existing data', async () => 
   backup.data.entries[0].experience.rating = 6
   await assert.rejects(importBackup(backup, 'replace'))
   assert.deepEqual((await exportBackup()).data, before)
+})
+
+test('backup restores unfinished numeric drafts while final entries still reject invalid numbers', async () => {
+  const draft = createEntry()
+  draft.tea.amount = -1
+  draft.brewing.volume = 100001
+  draft.brewing.waterTemperature = 120
+  draft.brewing.steepTime = -5
+  await setSetting('draft', draft)
+  const backup = await exportBackup()
+  await importBackup(backup, 'replace')
+  assert.deepEqual(await getSetting('draft'), draft)
+  draft.tea.name = '완료 전 초안'
+  assert.throws(() => validateEntry(draft))
+  for (const invalid of ['120', Infinity, NaN, {}, true]) {
+    const malformed = structuredClone(draft)
+    malformed.brewing.waterTemperature = invalid
+    assert.throws(() => validateEntry(malformed, true))
+  }
+  await setSetting('draft', createEntry())
 })
 
 test('backup validates dates, duplicate IDs, types, units, unsafe photo URLs and unknown settings', async () => {
@@ -128,4 +150,91 @@ test('search, range and rating filters work; stats ignore unrated records', () =
   assert.equal(localDate(new Date(2026, 9, 4, 0, 5)), '2026-10-04')
   const blank = entry('선택 사항'); blank.tea.amount = ''; blank.brewing.volume = ''
   assert.equal(normalizeEntry(blank).tea.amount, null)
+})
+
+test('legacy records, drafts and v1 backups get additive defaults without mutating raw records', async () => {
+  await clear()
+  const legacy = entry('이전 버전의 차')
+  legacy.photos = [{ id: 'photo-old', name: 'old.png', data: 'data:image/png;base64,iVBORw0KGgo=' }]
+  delete legacy.brewing.waterTemperature
+  delete legacy.brewing.steepTime
+  delete legacy.favorite
+  const db = await getDB()
+  await db.put('entries', legacy)
+  await setSetting('draft', legacy)
+  const loaded = (await listEntries())[0]
+  assert.equal(loaded.brewing.waterTemperature, null)
+  assert.equal(loaded.brewing.steepTime, null)
+  assert.equal(loaded.favorite, false)
+  assert.deepEqual(loaded.photos, legacy.photos)
+  assert.equal(loaded.updatedAt, legacy.updatedAt)
+  assert.deepEqual(await db.get('entries', legacy.id), legacy)
+  assert.equal((await getSetting('draft')).favorite, false)
+  assert.deepEqual((await db.get('settings', 'draft')).value, legacy)
+  const backup = await exportBackup()
+  assert.equal(backup.data.entries[0].favorite, false)
+  assert.equal(backup.data.settings[0].value.brewing.steepTime, null)
+  backup.data.entries = [legacy]
+  backup.data.settings[0].value = legacy
+  await importBackup(backup)
+  assert.deepEqual((await listEntries())[0], loaded)
+  const noPhotos = structuredClone(legacy)
+  delete noPhotos.photos
+  assert.deepEqual(validateEntry(noPhotos).photos, [])
+})
+
+test('invalid new fields are rejected before replacing existing records', async () => {
+  const before = (await exportBackup()).data
+  for (const [area, key, value] of [
+    ['brewing', 'waterTemperature', 101], ['brewing', 'waterTemperature', -1],
+    ['brewing', 'waterTemperature', '85'], ['brewing', 'waterTemperature', Infinity],
+    ['brewing', 'steepTime', -1], ['brewing', 'steepTime', NaN],
+    ['brewing', 'steepTime', '60'], ['root', 'favorite', 'true'], ['root', 'favorite', null],
+  ]) {
+    const backup = await exportBackup()
+    const target = area === 'root' ? backup.data.entries[0] : backup.data.entries[0][area]
+    target[key] = value
+    await assert.rejects(importBackup(backup, 'replace'))
+    assert.deepEqual((await exportBackup()).data, before)
+  }
+})
+
+test('temperature, seconds and favorites round-trip through JSON; zero differs from empty', async () => {
+  await clear()
+  const value = entry('기억하고 싶은 차')
+  value.brewing.waterTemperature = 85.5
+  value.brewing.steepTime = 60
+  value.favorite = true
+  await putEntry(value)
+  const backup = JSON.parse(JSON.stringify(await exportBackup()))
+  await removeEntry(value.id)
+  await importBackup(backup)
+  assert.deepEqual((await listEntries())[0], value)
+  const zero = structuredClone(value)
+  zero.brewing.waterTemperature = 0
+  zero.brewing.steepTime = 0
+  assert.equal(validateEntry(zero).brewing.waterTemperature, 0)
+  zero.brewing.waterTemperature = ''; zero.brewing.steepTime = ''
+  assert.equal(validateEntry(zero).brewing.steepTime, null)
+  const plain = entry('일반 차')
+  assert.deepEqual(filterEntries([value, plain], { favoritesOnly: true }), [value])
+})
+
+test('favorite save failure keeps UI state and stored record intact', async () => {
+  setActivePinia(createPinia())
+  const store = useEntryStore()
+  await store.load()
+  const before = structuredClone((await listEntries())[0])
+  const original = IDBObjectStore.prototype.put
+  IDBObjectStore.prototype.put = function (...args) {
+    if (this.name === 'entries') throw new DOMException('Storage full', 'QuotaExceededError')
+    return original.apply(this, args)
+  }
+  try { await assert.rejects(store.toggleFavorite(before.id)) }
+  finally { IDBObjectStore.prototype.put = original }
+  assert.deepEqual((await listEntries())[0], before)
+  assert.equal(store.entries[0].favorite, before.favorite)
+  await store.toggleFavorite(before.id)
+  assert.equal(store.entries[0].favorite, !before.favorite)
+  assert.equal((await listEntries())[0].favorite, !before.favorite)
 })

@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { testBase } from '../../scripts/test-base.js'
+import { createEntry } from '../../src/utils/entry.js'
 
 async function start(page) {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '차 한 잔에 담긴 나의 이야기.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘은 어떤 차를 마셨나요?' })).toBeVisible()
 }
 async function create(page, name, { rating = 0, category = '', feeling = '', tags = '' } = {}) {
   await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
@@ -186,4 +187,113 @@ test('360/390/430px screens have no horizontal overflow; production is empty and
   await page.screenshot({ path: 'test-results/form-mobile-390.png', fullPage: true })
   await page.goto('./#/settings')
   await expect(page.getByRole('button', { name: '샘플 기록 3개 추가' })).toHaveCount(0)
+})
+
+test('story context, new brewing fields and favorites persist across page closure, editing and JSON restore', async ({ page, context, browser }) => {
+  await start(page)
+  await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
+  await page.getByLabel('차 이름 *').fill('친구와 마신 청차')
+  await page.getByLabel('물 온도', { exact: true }).fill('85.5')
+  await page.getByLabel('우림 시간', { exact: true }).fill('60')
+  await page.getByLabel('장소 · Where').fill('햇살 드는 창가')
+  await page.getByLabel('함께한 사람 · Who').fill('오랜 친구')
+  await page.getByLabel('오늘 이 차를 마신 이유 · Why').fill('서로의 이야기를 천천히 듣고 싶어서')
+  await page.getByLabel('차를 마시면서 느낀 점').fill('대화가 이어지면서 한 잔의 차가 더 따뜻하게 느껴졌다.')
+  await page.getByRole('checkbox', { name: /즐겨찾기에 담기/ }).check()
+  await page.getByRole('button', { name: '기록 저장', exact: true }).click()
+  await expect(page.getByRole('heading', { name: '친구와 마신 청차' })).toBeVisible()
+  const detailURL = page.url()
+  await page.close()
+  page = await context.newPage()
+  await page.goto(detailURL)
+  await expect(page.locator('.detail-brew')).toContainText('85.5 °C')
+  await expect(page.locator('.detail-brew')).toContainText('60 초')
+  await expect(page.locator('.detail-context')).toContainText('햇살 드는 창가')
+  await expect(page.locator('.detail-context')).toContainText('오랜 친구')
+  await expect(page.locator('.detail-context')).toContainText('서로의 이야기를 천천히 듣고 싶어서')
+  await expect(page.getByRole('button', { name: '즐겨찾기 해제', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('link', { name: '기록 수정', exact: true }).click()
+  await expect(page.getByLabel('물 온도', { exact: true })).toHaveValue('85.5')
+  await expect(page.getByLabel('우림 시간', { exact: true })).toHaveValue('60')
+  await page.getByLabel('물 온도', { exact: true }).fill('')
+  await page.getByLabel('우림 시간', { exact: true }).fill('0')
+  await page.getByRole('button', { name: '수정 저장', exact: true }).click()
+  await expect(page.locator('.detail-brew')).toContainText('0 초')
+  await page.getByRole('button', { name: '즐겨찾기 해제', exact: true }).click()
+  await expect(page.getByRole('button', { name: '즐겨찾기에 담기', exact: true })).toHaveAttribute('aria-pressed', 'false')
+  await page.getByRole('navigation').getByRole('link', { name: '기록', exact: true }).click()
+  await page.getByRole('checkbox', { name: '즐겨찾기만 보기' }).check()
+  await expect(page.locator('.tea-card')).toHaveCount(0)
+  await page.getByRole('checkbox', { name: '즐겨찾기만 보기' }).uncheck()
+  await page.locator('.tea-card').click()
+  await page.getByRole('button', { name: '즐겨찾기에 담기', exact: true }).click()
+  await expect(page.getByRole('button', { name: '즐겨찾기 해제', exact: true })).toBeVisible()
+  await page.getByRole('navigation').getByRole('link', { name: '설정', exact: true }).click()
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: '전체 데이터 내보내기' }).click()
+  const data = JSON.parse(readFileSync(await (await downloadPromise).path(), 'utf8'))
+  expect(data.data.entries[0].favorite).toBe(true)
+  expect(data.data.entries[0].brewing.waterTemperature).toBeNull()
+  expect(data.data.entries[0].brewing.steepTime).toBe(0)
+  // Restore on a fresh browser context, which has no existing IndexedDB data.
+  const restoredContext = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'ko-KR', timezoneId: 'Asia/Seoul' })
+  try {
+    const restoredPage = await restoredContext.newPage()
+    await restoredPage.goto(new URL(`./#/settings`, detailURL).href)
+    await restoredPage.locator('#backup-file').setInputFiles({ name: 'story.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(data)) })
+    await restoredPage.getByRole('dialog').getByRole('radio', { name: /^전체 교체/ }).check()
+    await restoredPage.getByRole('button', { name: '전체 교체하기', exact: true }).click()
+    await expect(restoredPage.getByRole('dialog')).toHaveCount(0)
+    await restoredPage.getByRole('navigation').getByRole('link', { name: '기록', exact: true }).click()
+    await restoredPage.getByRole('checkbox', { name: '즐겨찾기만 보기' }).check()
+    await expect(restoredPage.locator('.tea-card')).toHaveCount(1)
+    await expect(restoredPage.locator('.tea-card')).toContainText('즐겨찾기')
+    await restoredPage.locator('.tea-card').click()
+    await expect(restoredPage.locator('.detail-context')).toContainText('서로의 이야기를 천천히 듣고 싶어서')
+    await expect(restoredPage.locator('.detail-brew')).toContainText('0 초')
+  } finally { await restoredContext.close() }
+})
+
+test('old IndexedDB record and draft remain readable and editable after additive model changes', async ({ page }) => {
+  await start(page)
+  const legacy = createEntry()
+  legacy.tea.name = '예전에 남긴 차'
+  delete legacy.brewing.waterTemperature
+  delete legacy.brewing.steepTime
+  delete legacy.favorite
+  const draft = structuredClone(legacy)
+  draft.id = 'old-draft'
+  draft.tea.name = '예전 초안'
+  await page.evaluate(async ({ legacy, draft }) => {
+    await new Promise((resolve, reject) => {
+      const request = indexedDB.open('tea-life-story', 1)
+      request.onerror = () => reject(request.error)
+      request.onsuccess = () => {
+        const db = request.result
+        const transaction = db.transaction(['entries', 'settings'], 'readwrite')
+        transaction.objectStore('entries').put(legacy)
+        transaction.objectStore('settings').put({ key: 'draft', value: draft })
+        transaction.oncomplete = () => { db.close(); resolve() }
+        transaction.onerror = () => { db.close(); reject(transaction.error) }
+      }
+    })
+  }, { legacy, draft })
+  await page.reload()
+  await page.locator('.tea-card').click()
+  await expect(page.getByRole('heading', { name: '예전에 남긴 차' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '즐겨찾기에 담기', exact: true })).toBeVisible()
+  await page.getByRole('link', { name: '기록 수정', exact: true }).click()
+  await expect(page.getByLabel('물 온도', { exact: true })).toHaveValue('')
+  await expect(page.getByLabel('우림 시간', { exact: true })).toHaveValue('')
+  await page.getByLabel('물 온도', { exact: true }).fill('90')
+  await page.getByRole('button', { name: '수정 저장', exact: true }).click()
+  await expect(page.locator('.detail-brew')).toContainText('90 °C')
+  await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
+  await page.getByRole('button', { name: '이어쓰기', exact: true }).click()
+  await expect(page.getByLabel('차 이름 *')).toHaveValue('예전 초안')
+  await expect(page.getByLabel('우림 시간', { exact: true })).toHaveValue('')
+  await page.getByLabel('우림 시간', { exact: true }).fill('30')
+  await page.getByRole('button', { name: '기록 저장', exact: true }).click()
+  await expect(page.getByRole('heading', { name: '예전 초안' })).toBeVisible()
+  await expect(page.locator('.detail-brew')).toContainText('30 초')
 })

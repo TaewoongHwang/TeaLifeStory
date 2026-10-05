@@ -12,11 +12,11 @@ const stats = computed(() => summarize(store.entries, localDate().slice(0, 7)))
 const recent = computed(() => filterEntries(store.entries).slice(0, 3))
 </script>
 <template>
-  <div class="home-view"><div class="page-eyebrow">A LITTLE RITUAL, A LASTING STORY</div>
-    <section class="home-hero"><div class="hero-copy"><span class="hero-date">{{ month }}</span><h1>차 한 잔에 담긴<br /><em>나의 이야기.</em></h1><p>차 한 잔의 이야기를 기록합니다.<br />오늘의 향과 마음을 오래 기억하도록.</p></div><TeaIllustration /></section>
-    <div class="monthly-note"><div><span class="muted">이번 달, 나를 위한 시간</span><p><strong>{{ stats.count }}</strong>잔의 차를 마셨어요<span class="small-leaf">葉</span></p></div><RouterLink to="/stats" aria-label="이번 달 통계 보기"><AppIcon name="arrow" /></RouterLink></div>
+  <div class="home-view"><div class="page-eyebrow">TEA LIFE STORY / MY DAILY JOURNAL</div>
+    <section class="home-hero"><div class="hero-copy"><span class="hero-date">{{ month }} · 한 잔의 기록</span><h1>오늘은 어떤 차를 <em>마셨나요?</em></h1><p>언제, 어디서, 누구와.<br />차 한 잔에 머물렀던<br />오늘의 이야기를 남겨요.</p></div><TeaIllustration /></section>
     <RouterLink to="/entries/new" class="button primary new-entry-button"><AppIcon name="plus" /> 차 기록하기<span>오늘의 한 잔을 남겨요</span></RouterLink>
-    <section class="recent-section"><div class="section-heading"><h2>최근 차 기록 <small>RECENT STORIES</small></h2><RouterLink to="/entries">모두 보기 <AppIcon name="arrow" /></RouterLink></div><div v-if="recent.length" class="card-stack"><TeaCard v-for="entry in recent" :key="entry.id" :entry="entry" /></div><EmptyState v-else /></section>
+    <div class="monthly-note"><p>이번 달에는 <strong>{{ stats.count }}잔</strong>의 이야기가 쌓였어요.</p><RouterLink to="/stats" aria-label="이번 달 통계 보기"><AppIcon name="arrow" /></RouterLink></div>
+    <section class="recent-section"><div class="section-heading"><h2>최근에 남긴 이야기 <small>PAGES FROM MY TEA JOURNAL</small></h2><RouterLink to="/entries">모두 보기 <AppIcon name="arrow" /></RouterLink></div><div v-if="recent.length" class="card-stack"><TeaCard v-for="entry in recent" :key="entry.id" :entry="entry" /></div><EmptyState v-else /></section>
     <div class="home-footer"><span>茶</span><p>좋은 차는 천천히 우러나고,<br />좋은 기억은 한 줄씩 쌓입니다.</p><small>YOUR EVERYDAY TEA JOURNAL</small></div>
   </div>
 </template>

@@ -25,6 +25,7 @@ async function addPhotos(event) {
     <p v-if="error" class="inline-error" role="alert">{{ error }}</p>
     <div v-if="entry.photos.length" class="photo-grid"><figure v-for="photo in entry.photos" :key="photo.id"><img :src="photo.data" :alt="photo.name" /><button type="button" :aria-label="`${photo.name} 사진 삭제`" @click="entry.photos = entry.photos.filter((item) => item.id !== photo.id)"><AppIcon name="close" /></button></figure></div>
     <FormField v-slot="{ id }" label="태그" hint="쉼표로 구분해 주세요. 최대 30개."><input :id="id" :value="tags" placeholder="아침, 혼자, 편안함" maxlength="3000" @change="tags = $event.target.value" /></FormField>
-    <FormField v-slot="{ id }" label="메모"><textarea :id="id" v-model="entry.experience.notes" rows="3" placeholder="차의 산지, 구입처, 다음에 기억하고 싶은 것들…" maxlength="10000" /></FormField>
+    <FormField v-slot="{ id }" label="메모"><textarea :id="id" v-model="entry.experience.notes" rows="4" class="lined-textarea" placeholder="차의 산지, 구입처, 다음에 기억하고 싶은 것들…" maxlength="10000" /></FormField>
+    <label class="checkbox-field"><input v-model="entry.favorite" type="checkbox" /><span>즐겨찾기에 담기<small class="muted">다시 찾고 싶은 차 이야기를 모아 보세요.</small></span></label>
   </section>
 </template>

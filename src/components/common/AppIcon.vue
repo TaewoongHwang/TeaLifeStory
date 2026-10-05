@@ -17,6 +17,7 @@ const paths = {
   image: 'M3 3h18v18H3V3Z m0 13 5-5 5 5 4-4 4 4 M15 7h.01',
   close: 'm6 6 12 12 M6 18 18 6',
   edit: 'm16 3 5 5-12 12-6 1 1-6L16 3Z m-2 2 5 5',
+  heart: 'M12 21 3 12a5.5 5.5 0 0 1 9-6 5.5 5.5 0 0 1 9 6l-9 9Z',
 }
 </script>
 <template><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="paths[name] || paths.leaf" /></svg></template>

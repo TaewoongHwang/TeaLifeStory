@@ -11,8 +11,9 @@ const fields = [
 </script>
 <template>
   <section class="form-section"><div class="section-label"><span>04</span><h2>느낌 <small>THE EXPERIENCE</small></h2></div>
+    <p class="section-prompt">정답은 없어요. 나에게 남은 느낌을 적어요.</p>
     <div class="field"><span class="field-label">오늘의 평점 <small class="muted">선택 사항</small></span><TeaRating v-model="experience.rating" /></div>
     <div class="field-grid"><FormField v-for="field in fields" :key="field.key" v-slot="{ id }" :label="field.label"><input :id="id" v-model="experience[field.key]" :placeholder="field.placeholder" maxlength="10000" /></FormField></div>
-    <FormField v-slot="{ id }" label="차를 마시면서 느낀 점"><textarea :id="id" v-model="experience.feeling" rows="4" class="lined-textarea" placeholder="차 한 잔과 함께한 순간을 남겨 보세요." maxlength="10000" /></FormField>
+    <FormField v-slot="{ id }" label="차를 마시면서 느낀 점"><textarea :id="id" v-model="experience.feeling" rows="6" class="lined-textarea" placeholder="첫 모금의 향, 천천히 바뀌는 맛, 그때의 마음을 남겨 보세요." maxlength="10000" /></FormField>
   </section>
 </template>
