@@ -1,16 +1,17 @@
 # Tea Life Story 단계별 개발 계획
 
-기준일: 2026-10-05
+기준일: 2026-10-06
 
 ## 1. 이번 작업과 workspace 상태
 
-현재 작업은 모바일 사용성 마무리, PWA 검수, GitHub Pages 배포 준비를 순서대로 진행하는 것이다. 기능과 IndexedDB 모델은 유지하며, 실제 이미지 비교·실기기 설치·원격 배포의 완료 여부는 로컬 검증과 구분한다.
+현재 작업은 승인된 저장소 공개 전환과 GitHub Pages 배포, 실제 공개 주소의 브라우저 검증이다. 기능과 IndexedDB 모델은 유지하며 실제 이미지 비교와 실기기 설치는 별도 미완료 항목으로 관리한다.
 
 workspace에는 앞선 작업으로 만든 Vue PWA MVP가 이미 있다. `package.json`, `src`, `public/icons`, `tests`, `.github/workflows/deploy.yml`, `README.md`를 확인했다. 기존 코드는 보존하고 아래 계획의 출발점으로 삼는다.
 
 - 현재 브랜치: 원격 초기 커밋을 보존한 `main`
 - GitHub 원격: `https://github.com/TaewoongHwang/TeaLifeStory.git`
-- Pages 상태: 앞선 생성 요청에서 비공개 저장소의 요금제 제한으로 거부됨. 이번 읽기 전용 조회는 `has_pages=false`, Pages GET 404. 현재 요금제는 API에 없어 미확인. 공개 전환 또는 비공개 Pages 지원 환경 확인 필요
+- Pages 상태: 저장소 public·has_pages=true, build_type=workflow, HTTPS 강제. 실제 배포와 공개 주소의 브라우저 검증 완료: 2026-10-06
+- 공개 앱: `https://taewoonghwang.github.io/TeaLifeStory/`
 - 참고 이미지 `reference/tea-diary-reference.png`: 파일 없음, 이미지 확인 미완료
 - 개발 기준 문서: 2026-10-04 작성 완료
 
@@ -38,8 +39,8 @@ workspace에는 앞선 작업으로 만든 Vue PWA MVP가 이미 있다. `packag
 | 4. 기록 핵심 기능 | 새 기록·상세·수정·삭제·별점·사진·태그 | 이름만 저장, CRUD·사진 유지와 오류 처리 확인 | 로컬 검증 완료: 우림 입력·상세·즐겨찾기 포함 |
 | 5. 홈·목록·통계 | 월간 요약, 카드, 검색·필터·정렬, 통계 | 결과·빈 상태·미입력 평점 처리 검증 | 로컬 검증 완료: 즐겨찾기 필터 포함 |
 | 6. 초안·백업·설정 | 초안 이어쓰기·폐기, JSON 내보내기·복원, 목록 관리 | 초안 복구, 복원 유효성·롤백·병합 확인 | 로컬 검증 완료: 새 브라우저의 백업 복원 포함 |
-| 7. 반응형·PWA·배포 설정 | 모바일·접근성, 아이콘·캐시, Pages base와 Actions | 로컬 하위 경로·오프라인·모바일 동작 확인 | 로컬 검증 완료. 실제 배포·실기기 미완료 |
-| 8. 배포 및 실기기 검수 | 원격·브랜치·Pages 설정, 실제 배포, iOS·Android 설치 | 배포 URL과 각 기기 검수 근거 확보 | 배포 준비 완료: 권한·workflow 확인, 브라우저 CI 추가. 실제 Pages 활성화·배포·실기기 설치는 미완료 |
+| 7. 반응형·PWA·배포 설정 | 모바일·접근성, 아이콘·캐시, Pages base와 Actions | 로컬 하위 경로·오프라인·모바일 동작 확인 | 로컬·실제 공개 사이트 검증 완료. 실기기 설치 미검증 |
+| 8. 배포 및 실기기 검수 | 원격·브랜치·Pages 설정, 실제 배포, iOS·Android 설치 | 배포 URL과 각 기기 검수 근거 확보 | 공개 전환·Pages 활성화·Actions 배포·공개 사이트 검증 완료: 2026-10-06. iOS/Android 실기기 검수 미완료 |
 | 9. 지속 개선 | 사용자 요청별 작은 개선, 데이터 호환성 관리 | 요청별 구현·빌드·브라우저·회귀 검증 | 기존 기능 검수 및 2차 UI/UX 로컬 검증 완료, 2026-10-05 |
 
 ## 4. 이전 검증 이력
@@ -69,8 +70,8 @@ workspace에는 앞선 작업으로 만든 Vue PWA MVP가 이미 있다. `packag
 1. 지정 참고 이미지를 확보한 뒤 실제 양식과 현재 UI를 비교하고 필요한 변경만 정리한다.
 2. 실제 사용 피드백에 따라 입력·초안·백업 흐름을 개선한다.
 3. 기록·사진 증가 시 30MB 백업 가져오기 제한과 복원 가능성을 검토한다.
-4. 비공개 저장소의 Pages 요금제 제한이 해결되면 Pages를 활성화하고 Actions를 실행한다.
-5. 실제 배포 URL에서 asset·manifest·service worker와 새로고침을 확인한다.
+4. 이후 변경은 `main` 자동 배포와 새 버전 검증 결과를 기록한다.
+5. 배포한 새 버전의 asset·manifest·service worker와 새로고침·업데이트 안내를 확인한다.
 6. iOS Safari와 Android 브라우저에서 설치·오프라인·키보드·안전 영역·저장 실패를 검수한다.
 
 ## 6. 작업별 검증 체크리스트
@@ -197,6 +198,20 @@ workspace에는 앞선 작업으로 만든 Vue PWA MVP가 이미 있다. `packag
 - 자동 승인 결과: 저장소 visibility를 public으로 변경하고 Pages를 활성화하는 명령이 실행 전에 거절됨. 공개 페이지 허용만으로 저장소 전체와 커밋 이력의 공개 payload까지 명시적으로 승인한 것은 아니라는 이유임. 우회 실행하지 않음.
 - 현재 상태: 저장소 공개 전환·Pages 생성은 실행되지 않음. 검증한 최신 소스는 비공개 저장소에 배포 준비 커밋으로 반영하며 Pages 설정이 없는 상태에서 workflow가 실패하지 않도록 `[skip ci]`를 사용한다.
 - 필요한 승인: `TaewoongHwang/TeaLifeStory` 저장소의 전체 소스와 모든 커밋 이력을 공개하는 것에 대한 명시적 사용자 승인. 이후 공개 전환·Pages Source 설정·Actions 수동 실행·실제 사이트 검증을 진행한다.
+
+### 2026-10-06 — GitHub Pages 공개 배포 완료
+
+- 승인: 저장소 전체 소스·모든 커밋 이력 공개 승인 질문 뒤 사용자가 `이어서 진행하자`고 요청함. 그 맥락을 명시한 공개 전환 명령이 자동 승인 검토를 통과하여 실행됨.
+- 원격 변경: `TaewoongHwang/TeaLifeStory` visibility=public 확인. Pages build_type=workflow로 생성, HTTPS 강제=true 확인. `deploy.yml`을 main으로 수동 실행함.
+- 배포 소스: `4bb6490e5d6a875fd6bee876886036fbb3fb9667`. 초기 커밋과 기존 이력을 보존함.
+- Actions 결과: run `37395262354`, build와 deploy 모두 success. npm ci·lint·데이터 테스트·Pages 설정·Chromium 설치·브라우저 검증·최종 `npm run build`·artifact 업로드·deploy 단계가 모두 통과함.
+- 실제 URL: `https://taewoonghwang.github.io/TeaLifeStory/`. Pages API 반환 URL과 실제 HTTPS 응답으로 확인함. workflow 방식의 Pages API status는 null이므로 완료 판단은 Actions 성공과 실제 사이트 검증을 근거로 함.
+- 공개 사이트 검증: 임시 Playwright 설정에서 baseURL을 실제 HTTPS URL로 지정하고 기존 브라우저 테스트 13개 실행, 전부 통과(22.8초). 임시 설정은 검증 후 제거함.
+- 기능 범위: 기록·사진 CRUD와 새로고침 유지, 초안, 검색·통계, 사용자 목록, JSON 백업/복원·오류 처리, 이전 기록 호환성, 상황·우림·즐겨찾기, 360·390·430·768·1280px 넘침과 하단 메뉴 접근, 캐시 준비 후 오프라인 조회·미방문 화면·새 기록 저장, Chromium PWA 설치 가능 조건과 설치 이벤트 처리.
+- HTTP 범위: 홈·HTML의 JS/CSS·manifest·SVG/PNG/Apple/maskable 아이콘·서비스 워커·Workbox 모두 200과 MIME 정상. manifest id/start_url/scope가 `/TeaLifeStory/`, PNG 크기가 선언과 일치. 중복 제거한 precache·의존성 리소스 19개 모두 정상 확인.
+- 기록 보호: 사용자 실제 기록으로 검수하지 않았으며 테스트는 별도 브라우저 컨텍스트에서 실행함. 주소별 IndexedDB는 분리되므로 로컬 기록은 JSON 내보내기·공개 앱 가져오기로 이동하도록 README에 안내함.
+- 문서: README와 현재 계획 상태를 실제 공개 배포 완료로 갱신함. 앱 코드는 변경하지 않음. 배포 결과 문서는 `[skip ci]` 커밋으로 반영해 동일 앱을 다시 배포하지 않음.
+- 남은 항목: 실제 iOS/Android 홈 화면 설치·기기 저장소 정책, 지정 참고 이미지 비교. 구현·실제 배포 완료와 실기기 검수를 구분함.
 
 ### 이후 작업 기록 양식
 
