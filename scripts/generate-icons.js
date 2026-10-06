@@ -1,22 +1,33 @@
 // Dependency-free PNG rasterizer for the project's vector-style app mark.
 import { deflateSync } from 'node:zlib'
 import { mkdirSync, writeFileSync } from 'node:fs'
-const bg = [48, 76, 63], paper = [245, 242, 233], sage = [181, 197, 160]
+const bg = [116, 63, 50], paper = [250, 245, 237], clay = [183, 125, 98]
 function segment(x, y, ax, ay, bx, by, radius) {
   const t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / ((bx - ax) ** 2 + (by - ay) ** 2)))
   return (x - ax - t * (bx - ax)) ** 2 + (y - ay - t * (by - ay)) ** 2 < radius ** 2
 }
+function ellipse(x, y, cx, cy, rx, ry) {
+  return (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 < 1
+}
+function polygon(x, y, points) {
+  let inside = false
+  for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+    const [ax, ay] = points[i], [bx, by] = points[j]
+    if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) inside = !inside
+  }
+  return inside
+}
 function pixel(x, y) {
   let color = bg
-  if ((x >= 145 && x <= 344 && y >= 250 && y <= 312) || ((x - 244) ** 2 / 99 ** 2 + (y - 312) ** 2 / 76 ** 2 < 1 && y >= 312)) color = paper
-  const handle = (x - 346) ** 2 / 59 ** 2 + (y - 298) ** 2 / 41 ** 2
-  const inside = (x - 346) ** 2 / 39 ** 2 + (y - 298) ** 2 / 22 ** 2
-  if (x >= 344 && handle < 1 && inside > 1) color = paper
-  if (segment(x, y, 125, 413, 387, 413, 7)) color = paper
-  const u = (x - 286) * .63 + (y - 143) * -.78
-  const v = (x - 286) * .78 + (y - 143) * .63
-  if (u ** 2 / 66 ** 2 + v ** 2 / 32 ** 2 < 1) color = sage
-  if (segment(x, y, 235, 211, 315, 107, 4)) color = bg
+  // The whole teapot stays within the central maskable-icon safe circle.
+  if (ellipse(x, y, 151, 290, 47, 42) && !ellipse(x, y, 151, 290, 29, 24)) color = paper
+  if (polygon(x, y, [[334, 281], [378, 255], [390, 226], [423, 225], [414, 250], [369, 315], [339, 327]])) color = paper
+  if (ellipse(x, y, 256, 302, 102, 62) || (x >= 222 && x <= 290 && y >= 359 && y <= 375)) color = paper
+  if (ellipse(x, y, 256, 234, 68, 21) || ellipse(x, y, 256, 211, 15, 12)) color = paper
+  if (ellipse(x, y, 256, 245, 84, 17)) color = bg
+  if (ellipse(x, y, 256, 245, 78, 11)) color = paper
+  if (segment(x, y, 182, 295, 195, 320, 2.5) || segment(x, y, 195, 320, 230, 339, 2.5)) color = clay
+  if (ellipse(x, y, 309, 244, 4, 4)) color = bg
   return color
 }
 function crc32(bytes) {

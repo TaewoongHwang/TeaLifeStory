@@ -21,11 +21,11 @@ async function addPhotos(event) {
 </script>
 <template>
   <section class="form-section"><div class="section-label"><span>05</span><h2>조금 더 <small>EXTRA NOTES</small></h2></div>
-    <FormField v-slot="{ id }" label="사진" hint="최대 6장 · JPG, PNG, WebP · 한 장당 15MB 이하. 저장할 때 크기를 줄입니다."><label class="photo-upload" :for="id"><AppIcon name="image" /><span>{{ busy ? '사진을 담고 있어요…' : '한 잔의 순간을 담아보세요' }}</span></label><input :id="id" class="file-input" type="file" accept="image/jpeg,image/png,image/webp" multiple :disabled="busy" @change="addPhotos" /></FormField>
+    <FormField v-slot="{ id }" label="사진" hint="최대 6장 · JPG, PNG, WebP · 한 장당 15MB 이하. 저장할 때 크기를 줄입니다."><label class="photo-upload" :for="id"><AppIcon name="image" /><span>{{ busy ? '사진을 담고 있어요…' : '한 잔의 순간을 사진으로 담아 보세요' }}</span></label><input :id="id" class="file-input" type="file" accept="image/jpeg,image/png,image/webp" multiple :disabled="busy" @change="addPhotos" /></FormField>
     <p v-if="error" class="inline-error" role="alert">{{ error }}</p>
     <div v-if="entry.photos.length" class="photo-grid"><figure v-for="photo in entry.photos" :key="photo.id"><img :src="photo.data" :alt="photo.name" /><button type="button" :aria-label="`${photo.name} 사진 삭제`" @click="entry.photos = entry.photos.filter((item) => item.id !== photo.id)"><AppIcon name="close" /></button></figure></div>
     <FormField v-slot="{ id }" label="태그" hint="쉼표로 구분해 주세요. 최대 30개."><input :id="id" :value="tags" placeholder="아침, 혼자, 편안함" maxlength="3000" @change="tags = $event.target.value" /></FormField>
-    <FormField v-slot="{ id }" label="메모"><textarea :id="id" v-model="entry.experience.notes" rows="4" class="lined-textarea" placeholder="차의 산지, 구입처, 다음에 기억하고 싶은 것들…" maxlength="10000" /></FormField>
-    <label class="checkbox-field"><input v-model="entry.favorite" type="checkbox" /><span>즐겨찾기에 담기<small class="muted">다시 찾고 싶은 차 이야기를 모아 보세요.</small></span></label>
+    <FormField v-slot="{ id }" label="메모"><textarea :id="id" v-model="entry.experience.notes" rows="4" class="lined-textarea" placeholder="차의 산지나 구입처, 다음 잔을 위해 기억해 둘 것들…" maxlength="10000" /></FormField>
+    <label class="checkbox-field"><input v-model="entry.favorite" type="checkbox" /><span>즐겨찾기에 담기<small class="muted">다시 펼쳐 보고 싶은 한 잔을 모아 두세요.</small></span></label>
   </section>
 </template>
