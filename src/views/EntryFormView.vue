@@ -51,7 +51,18 @@ watch(entry, () => {
 
 async function chooseDraft(resume) {
   try {
-    if (resume) entry.value = clone(pendingDraft.value)
+    if (resume) {
+      const draft = clone(pendingDraft.value)
+      const alreadySaved = store.entries.some((item) => item.id === draft.id)
+      // Resuming a new form must not reuse the ID of a previously saved record.
+      draft.id = entry.value.id
+      if (alreadySaved) {
+        draft.createdAt = new Date().toISOString()
+        draft.updatedAt = draft.createdAt
+        app.notify('이미 저장된 이야기가 있어 초안은 새 기록으로 이어갈게요. 기존 기록은 그대로 보관됩니다.')
+      }
+      entry.value = draft
+    }
     else await settings.clearDraft()
     pendingDraft.value = null
     ready.value = true
@@ -97,7 +108,7 @@ onBeforeRouteLeave(async () => {
 onUnmounted(() => { clearTimeout(timer); document.removeEventListener('visibilitychange', hide); window.removeEventListener('beforeunload', beforeUnload); window.removeEventListener('pagehide', flushDraft) })
 </script>
 <template>
-  <div class="entry-form-view"><RouterLink :to="editing ? `/entries/${route.params.id}` : '/'" class="back-link"><AppIcon name="back" />{{ editing ? '기록으로' : '일기장으로' }}</RouterLink><div class="page-eyebrow">A MOMENT TO REMEMBER / 茶</div><div class="page-title"><h1>{{ editing ? '차 이야기를 다시 펼쳐요' : '오늘의 한 잔을 남겨요' }}</h1><p>차 이름만 적어도 좋아요.<br />향과 마음, 그날의 순간은 천천히.</p></div>
+  <div class="entry-form-view"><RouterLink :to="editing ? `/entries/${route.params.id}` : '/'" class="back-link"><AppIcon name="back" />{{ editing ? '기록으로' : '일기장으로' }}</RouterLink><div class="page-eyebrow">A MOMENT TO REMEMBER / 茶</div><div class="page-title"><h1>{{ editing ? '차 이야기를 다시 펼쳐요' : '오늘의 한 잔을 남겨요' }}</h1><p>차 이름만 적어도 좋아요.<span class="form-intro-detail"><br />향과 마음, 그날의 순간은 천천히.</span></p></div>
     <EmptyState v-if="editing && !existing" title="기록을 찾을 수 없어요" description="삭제되었거나 이 기기에 없는 기록입니다." :action="false" />
     <form v-else-if="ready" @submit.prevent="save"><div class="form-status"><span>* 필수 입력</span><span role="status">{{ draftStatus }}</span></div><fieldset :disabled="saving" class="form-fields"><TeaBasicForm v-model="entry.tea" /><BrewingForm v-model="entry.brewing" /><TeaContextForm v-model="entry.context" /><TeaExperienceForm v-model="entry.experience" /><TeaExtrasForm v-model="entry" @busy="processing = $event" /></fieldset><p v-if="error" class="inline-error" role="alert">{{ error }}</p><div class="save-bar"><button type="submit" class="button primary" :disabled="saving || processing"><AppIcon name="book" />{{ saving ? '저장 중…' : editing ? '수정 저장' : '기록 저장' }}</button></div></form>
     <p v-else-if="!pendingDraft" role="status">{{ error || '초안을 확인하고 있어요…' }}</p>

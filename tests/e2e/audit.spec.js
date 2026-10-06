@@ -105,7 +105,15 @@ test('mobile audit: last inputs, save button and navigation remain reachable wit
   await start(page)
   for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 640 })
+    const homeLayout = await page.evaluate(() => ({ button: document.querySelector('.new-entry-button').getBoundingClientRect().bottom, nav: document.querySelector('.bottom-nav').getBoundingClientRect().top }))
+    expect(homeLayout.button).toBeLessThanOrEqual(homeLayout.nav)
     await nav(page, '새 기록')
+    const nameLayout = await page.getByLabel('차 이름 *').evaluate((input) => {
+      const rect = input.getBoundingClientRect()
+      return { bottom: rect.bottom, saveTop: document.querySelector('.save-bar').getBoundingClientRect().top, visible: document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2) === input }
+    })
+    expect(nameLayout.bottom).toBeLessThanOrEqual(nameLayout.saveTop)
+    expect(nameLayout.visible).toBe(true)
     const favorite = page.getByRole('checkbox', { name: /즐겨찾기에 담기/ })
     await favorite.scrollIntoViewIfNeeded()
     const layout = await page.evaluate(() => {

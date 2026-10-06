@@ -32,7 +32,7 @@ export function formatDate(value, options = { month: 'long', day: 'numeric', wee
   return new Intl.DateTimeFormat('ko-KR', options).format(new Date(`${value}T12:00:00`))
 }
 export function summarize(entries, month = localDate().slice(0, 7)) {
-  const current = entries.filter((entry) => entry.context.date.startsWith(month))
+  const current = month ? entries.filter((entry) => entry.context.date.startsWith(month)) : []
   const rated = current.filter((entry) => entry.experience.rating > 0)
   const counts = new Map()
   for (const entry of current) {

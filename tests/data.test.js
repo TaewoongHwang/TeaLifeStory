@@ -147,6 +147,9 @@ test('search, range and rating filters work; stats ignore unrated records', () =
   assert.equal(filterEntries(entries, { sort: 'oldest' })[0].tea.name, '보이차')
   assert.equal(summarize(entries, '2026-10').count, 2)
   assert.equal(summarize(entries, '2026-10').average, '5.0')
+  assert.equal(summarize(entries, '').count, 0)
+  assert.equal(summarize(entries, '').average, '—')
+  assert.deepEqual(summarize(entries, '').categories, [])
   assert.equal(localDate(new Date(2026, 9, 4, 0, 5)), '2026-10-04')
   const blank = entry('선택 사항'); blank.tea.amount = ''; blank.brewing.volume = ''
   assert.equal(normalizeEntry(blank).tea.amount, null)
