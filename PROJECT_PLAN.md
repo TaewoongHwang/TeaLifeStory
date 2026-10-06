@@ -4,7 +4,7 @@
 
 ## 1. 이번 작업과 workspace 상태
 
-현재 작업은 CSV 내보내기 추가이다. 저장된 차 기록을 엑셀 등에서 읽고 정리할 수 있도록 표로 제공한다. 기존 JSON 백업·복원, IndexedDB 구조와 백업 버전은 유지하며 CSV 가져오기는 추가하지 않는다.
+CSV 내보내기 추가와 공개 반영을 완료했다. 저장된 차 기록을 엑셀 등에서 읽고 정리할 수 있도록 표로 제공한다. 기존 JSON 백업·복원, IndexedDB 구조와 백업 버전은 유지하며 CSV 가져오기는 추가하지 않았다.
 
 workspace에는 앞선 작업으로 만든 Vue PWA MVP가 이미 있다. `package.json`, `src`, `public/icons`, `tests`, `.github/workflows/deploy.yml`, `README.md`를 확인했다. 기존 코드는 보존하고 아래 계획의 출발점으로 삼는다.
 
@@ -259,7 +259,9 @@ workspace에는 앞선 작업으로 만든 Vue PWA MVP가 이미 있다. `packag
 - 로컬 검증: `npm run lint` 통과, `npm test` 17개 통과(기존 13 + CSV 4), 전체 production 브라우저 테스트 19개 통과(42.4초). 이후 CSV 오프라인 재접속/내보내기와 안내 문구 접근을 추가한 관련 테스트 2개도 통과(6.4초).
 - 데이터 확인: CSV 전후·잘못된 CSV 가져오기 시도 후·새로고침 후 JSON 전체 데이터가 동일함. 사진·초안·사용자 선택 목록 보존, 한국어·BOM·CRLF·쉼표/따옴표/다중행·수치 0/미입력·헤더 전용 파일 확인. 실제 사용자 데이터는 사용하지 않음.
 - 화면 확인: 별도 Chromium 컨텍스트에서 360·390·430×640 설정의 CSV 항목을 캡처·직접 확인. 버튼과 용도 안내 접근 가능, console error/warning·pageerror·가로 넘침 없음.
-- 최종 빌드: `npm run build` 성공, 73개 모듈·PWA precache 24개(211.82KiB). CSV 변환은 설정 chunk에 포함하며 신규 라이브러리·DB 구조 변경 없음. 공개 반영을 확인 중.
+- 최종 빌드: `npm run build` 성공, 73개 모듈·PWA precache 24개(211.82KiB). CSV 변환은 설정 chunk에 포함하며 신규 라이브러리·DB 구조 변경 없음.
+- 공개 반영: SHA `26e25982132062778c2f937df7d7a43641576b19`, Actions run `37419547058`의 build/deploy·린트·데이터·전체 브라우저·최종 빌드 모두 success. 실제 HTTPS 공개 주소에서 CSV 2개와 기존 JSON 백업/전체 교체/잘못된 파일 거부 1개 테스트를 실행해 3개 통과(8.9초). CSV 오프라인 재접속/동일 파일 생성·360/390/430px 버튼/안내 접근·원본 유지 확인. 임시 공개 검증 설정은 제거함.
+- 결과: CSV 표 내보내기 구현·로컬 검증·공개 배포와 실제 주소 검증 완료. 전체 백업/복원은 JSON을 사용하도록 설정과 README에 안내함.
 - 검증 범위: Chromium에서 생성 파일·다운로드·브라우저 동작을 검증했으며 실제 Microsoft Excel/Numbers 프로그램과 iOS/Android 파일 저장은 이번에 실행하지 않음.
 
 ### 이후 작업 기록 양식
