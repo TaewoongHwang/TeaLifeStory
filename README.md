@@ -81,7 +81,7 @@ DB 이름은 `tea-life-story`, 버전은 `1`입니다. `entries`, `categories`, 
 
 저장소는 [TaewoongHwang/TeaLifeStory](https://github.com/TaewoongHwang/TeaLifeStory)이며, 원격 주소는 `https://github.com/TaewoongHwang/TeaLifeStory.git`입니다. 원격 `main`의 초기 커밋을 보존했습니다.
 
-2026-10-06 사용자 승인에 따라 저장소의 소스·커밋 이력을 공개로 전환하고 Pages Source를 GitHub Actions로 활성화했습니다. HTTPS 강제를 확인했습니다. 앱 커밋 `4bb6490`의 [배포 작업](https://github.com/TaewoongHwang/TeaLifeStory/actions/runs/37395262354)에서 build·deploy가 모두 성공했습니다.
+2026-10-06 사용자 승인에 따라 저장소의 소스·커밋 이력을 공개로 전환하고 Pages Source를 GitHub Actions로 활성화했습니다. HTTPS 강제를 확인했습니다. 보이차 테마·따뜻한 문구·차 도구 디자인 커밋 `e6d9ceb`의 [배포 작업](https://github.com/TaewoongHwang/TeaLifeStory/actions/runs/37396846823)에서 build·deploy가 모두 성공했습니다.
 
 실제 공개 주소에서도 별도 Chromium 컨텍스트의 브라우저 테스트 13개가 모두 통과했습니다. JS·CSS·manifest·아이콘·서비스 워커·Workbox 응답과 MIME, 기록 저장·수정·새로고침·삭제·검색·통계·백업/복원·모바일·오프라인·PWA 설치 조건을 확인했습니다. 실기기 iOS/Android 설치 검수는 남아 있습니다.
 

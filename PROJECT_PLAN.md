@@ -225,6 +225,9 @@ workspace에는 앞선 작업으로 만든 Vue PWA MVP가 이미 있다. `packag
 - 시각 검증: 개발 모드의 별도 브라우저 컨텍스트에서 360·390·430·720px 홈·카드·작성 화면 캡처와 시각 확인, 가로 overflow·console error/warning·미처리 예외 없음. 아이콘 생성과 SVG 렌더링 확인. 본문/종이 대비 13.25:1, 보조 문구/종이 5.31:1, placeholder/종이 4.55:1, 버튼 문구/강조 배경 7.97:1 확인. 전체 WCAG 검수를 완료했다는 의미는 아님.
 - 기능 검증: `npm run lint` 통과, `npm test` 13개 통과, `/TeaLifeStory/` production 브라우저 테스트 13개 통과(33.1초). 기존 기록·초안·백업·CRUD·검색·통계·PWA·모바일 회귀 확인.
 - 최종 빌드: `npm run build` 성공, 72개 모듈·PWA precache 24개(207.42KiB). manifest·HTML·SVG/PNG 아이콘과 theme/background 색상 확인. 이후 공개 앱의 자동 배포 결과를 기록한다.
+- 공개 반영: 디자인 커밋 `e6d9ceba59ee7094df9a7b5c610d8fa18756b90b`, Actions run `37396846823`에서 build/deploy·lint·데이터·브라우저 검증 모두 success. 실제 공개 사이트에서 기존 브라우저 테스트 13개 다시 통과(22.0초).
+- 공개 시각 검증: 360·390·430px 홈 캡처·넘침·콘솔 확인. 실제 CSS 강조색·HTML theme·manifest theme가 `#743f32`, background가 `#f4ece2`, SVG viewBox가 360×220임을 확인함. 공개된 PNG 4개의 SHA256이 로컬 새 아이콘과 일치함.
+- 추가 문구 확인: 통계에서 다른 달을 선택할 수 있으므로 빈 상태의 `이달`을 `선택한 달`로 명확히 함. 현재 월을 뜻하는 홈의 `이달`과 구분함.
 - 데이터: IndexedDB·Pinia 저장 계층·백업 형식·라우터·초안 로직 변경 없음. 실제 사용자 기록으로 검수하지 않음.
 - 참고 이미지: 지정 PNG가 여전히 없어 직접 비교는 미완료. 사용자가 제시한 차 도구·색상·감성을 기준으로 진행함.
 
