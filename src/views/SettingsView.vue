@@ -5,6 +5,7 @@ import { useEntryStore } from '../stores/entryStore.js'
 import { useAppStore } from '../stores/appStore.js'
 import { MAX_BACKUP_SIZE, validateBackup } from '../db/backup.js'
 import { localDate } from '../utils/entry.js'
+import { entriesToCsv } from '../utils/csv.js'
 import { optionStores } from '../config/defaults.js'
 import OptionManager from '../components/OptionManager.vue'
 import InstallGuide from '../components/InstallGuide.vue'
@@ -18,20 +19,35 @@ const backup = ref(null)
 const fileName = ref('')
 const mode = ref('merge')
 const error = ref('')
+const csvError = ref('')
 const dev = import.meta.env.DEV
+function downloadFile(blob, name) {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url; link.download = name
+  try { document.body.append(link); link.click() }
+  finally { link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000) }
+}
 async function exportData() {
   busy.value = true
   error.value = ''
   try {
     const data = await settings.exportData()
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url; link.download = `tea-life-story-${localDate()}.json`
-    document.body.append(link); link.click(); link.remove()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    downloadFile(blob, `tea-life-story-${localDate()}.json`)
     app.notify('백업 파일을 내보냈어요. 안전한 곳에 보관해 주세요.')
   } catch { error.value = '백업 파일을 만들지 못했습니다. 다시 시도해 주세요.' }
+  finally { busy.value = false }
+}
+async function exportCsv() {
+  busy.value = true
+  csvError.value = ''
+  try {
+    await entries.load()
+    const blob = new Blob([entriesToCsv(entries.entries)], { type: 'text/csv;charset=utf-8' })
+    downloadFile(blob, `tea-life-story-records-${localDate()}.csv`)
+    app.notify('차 기록을 CSV로 내보냈어요. 엑셀 등에서 표로 펼쳐 보세요.')
+  } catch { csvError.value = 'CSV 파일을 만들지 못했습니다. 다시 시도해 주세요. 기존 기록은 유지됩니다.' }
   finally { busy.value = false }
 }
 async function selectBackup(event) {
@@ -65,6 +81,7 @@ async function addSamples() {
 <template>
   <div><div class="page-eyebrow">MAKE IT YOUR OWN</div><div class="page-title"><h1>나의 일기장 설정</h1><p>나의 취향을 담고, 차 이야기를 오래 간직해요.</p></div>
     <section class="panel"><div class="section-heading"><h2>기록을 오래 간직하기 <small>KEEP YOUR STORIES</small></h2></div><p class="muted">소중한 기록과 사진은 이 브라우저에만 저장됩니다. 브라우저 데이터를 지우거나 기기를 바꾸기 전에 백업해 주세요.</p><div class="backup-actions"><button type="button" class="button secondary" :disabled="busy" @click="exportData"><AppIcon name="download" />전체 데이터 내보내기</button><label class="button secondary" :class="{ disabled: busy }" for="backup-file"><AppIcon name="upload" />데이터 가져오기</label><input id="backup-file" class="file-input" type="file" accept=".json,application/json" :disabled="busy" @change="selectBackup" /></div><p class="small muted">JSON · 기록, 사진, 선택 목록, 작성 중 초안을 함께 백업합니다.</p><p v-if="error && !backup" role="alert" class="inline-error">{{ error }}</p></section>
+    <section class="panel"><div class="section-heading"><h2>차 이야기를 표로 펼치기 <small>STORIES IN A TABLE</small></h2></div><p class="muted">저장한 차 기록을 CSV 파일로 내려받아 엑셀 등에서 읽고 정리할 수 있어요.</p><div class="backup-actions"><button type="button" class="button secondary" :disabled="busy" @click="exportCsv"><AppIcon name="download" />차 기록 CSV 내보내기</button></div><p class="small muted">CSV는 표로 보는 용도이며 다시 가져올 수 없습니다. 사진·설정·초안까지 보관하거나 복원하려면 위의 JSON 백업을 이용해 주세요.</p><p v-if="csvError" role="alert" class="inline-error">{{ csvError }}</p></section>
     <section class="panel"><div class="section-heading"><h2>나의 선택 목록 <small>YOUR PREFERENCES</small></h2></div><p class="muted">자주 마시는 차와 사용하는 도구를 더해 보세요. 이름 변경·삭제는 앞으로의 선택 목록에 적용되며 기존 일기의 내용은 유지됩니다.</p><OptionManager v-for="store in optionStores" :key="store" :store-name="store" /></section>
     <InstallGuide />
     <section v-if="dev" class="panel"><h2>개발 확인용 샘플</h2><p class="muted">샘플 표시가 있는 기록 3개를 추가합니다. 실제 기록과 함께 통계에 포함되며 개별 삭제할 수 있습니다. 배포 버전에는 이 기능이 없습니다.</p><button class="button secondary" :disabled="busy" @click="addSamples">샘플 기록 3개 추가</button></section>
