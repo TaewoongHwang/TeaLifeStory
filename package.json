@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "test": "node --test tests/*.test.js",
     "test:e2e": "playwright test",
-    "icons": "node scripts/generate-icons.js"
+    "icons": "node scripts/prepare-brand-assets.js"
   },
   "dependencies": {
     "vue": "^3.5.0",

@@ -1,8 +1,10 @@
-# Tea Life Story
+# 차곡차곡
 
 차 한 잔의 향, 우림, 순간과 마음을 기록하는 모바일 중심 Vue PWA입니다. 서버와 회원가입 없이 IndexedDB에 기록을 저장합니다.
 
-보이차와 자사호를 닮은 붉은 갈색, 따뜻한 종이빛과 차분한 나무빛으로 구성했습니다. 홈의 자사호·공도배·찻잔 일러스트와 짧고 다정한 문구로 한 잔의 이야기를 천천히 남깁니다.
+보이차와 자사호를 닮은 붉은 갈색, 따뜻한 종이빛과 차분한 나무빛으로 구성했습니다. 홈의 생성형 자사호·공도배·찻잔 사진과 짧고 다정한 문구로 한 잔의 이야기를 천천히 남깁니다. 표시 이름은 `차곡차곡`이며 기존 저장소·백업 식별자는 이전 데이터를 계속 읽도록 유지합니다.
+
+생성 원본과 전체 최종 프롬프트는 `assets/generated/PROMPTS.md`에 보관합니다. built-in image_gen으로 새 사진 2개를 만들었으며 앱에는 WebP와 크기별 PNG만 배포합니다. `npm run icons`로 보존된 원본의 배포 파일을 재생성할 수 있습니다(기존 Playwright Chromium 설치 필요). 이미지 내용은 원본을 유지하고 크기·포맷·maskable 안전 여백만 조정합니다.
 
 ## 실행
 
@@ -58,7 +60,9 @@ src/
   components/        공통 UI와 차 기록 입력 섹션
   views/             홈, 목록, 작성·수정, 상세, 통계, 설정
   utils/             데이터 생성·정규화·검색·통계, 사진 처리
-public/icons/        SVG와 192/512px PNG, maskable, Apple 아이콘
+assets/generated/    생성형 이미지 원본과 최종 프롬프트
+public/images/       홈 다구 사진 WebP 두 크기
+public/icons/        새 PNG와 192/512px, maskable, Apple 아이콘
 tests/               데이터·브라우저 검증
 .github/workflows/   main push 시 GitHub Pages 배포
 ```
@@ -86,7 +90,7 @@ CSV의 수식처럼 시작하는 텍스트에는 보호용 탭을, 그 밖의 �
 
 ## GitHub Pages 배포
 
-공개 앱: [Tea Life Story](https://taewoonghwang.github.io/TeaLifeStory/)
+공개 앱: [차곡차곡](https://taewoonghwang.github.io/TeaLifeStory/)
 
 저장소는 [TaewoongHwang/TeaLifeStory](https://github.com/TaewoongHwang/TeaLifeStory)이며, 원격 주소는 `https://github.com/TaewoongHwang/TeaLifeStory.git`입니다. 원격 `main`의 초기 커밋을 보존했습니다.
 

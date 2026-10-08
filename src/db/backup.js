@@ -3,7 +3,7 @@ import { optionStores } from '../config/defaults.js'
 import { normalizeEntry } from '../utils/entry.js'
 
 export const MAX_BACKUP_SIZE = 30 * 1024 * 1024
-const fail = () => { throw new Error('올바른 Tea Life Story 백업 파일이 아닙니다. 기존 데이터는 유지됩니다.') }
+const fail = () => { throw new Error('올바른 차곡차곡 백업 파일이 아닙니다. 기존 데이터는 유지됩니다.') }
 const isObject = (value) => value && typeof value === 'object' && !Array.isArray(value)
 const text = (value, max = 10000) => typeof value === 'string' && value.length <= max
 const identifier = (value) => text(value, 200) && value.trim().length > 0

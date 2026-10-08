@@ -127,14 +127,21 @@ small {
   margin-top: 5px;
 }
 .brand-mark {
-  border: 1px solid #9b6b50;
-  border-radius: 10px 3px 10px 3px;
-  width: 38px;
-  height: 38px;
+  border-radius: 9px;
+  overflow: hidden;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   font-size: 24px;
   color: var(--tea);
+}
+.brand-mark-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .brand-mark svg {
   width: 23px;
@@ -328,6 +335,13 @@ main {
   width: min(100%,280px);
   height: auto;
   margin: 0 auto;
+  border-radius: 8px;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+}
+.home-view>.page-eyebrow {
+  font-family: inherit;
+  letter-spacing: 1px;
 }
 .monthly-note {
   display: flex;
@@ -1764,13 +1778,16 @@ input::-webkit-inner-spin-button {
     margin-bottom: 14px;
   }
   .tea-illustration {
-    width: min(100%,180px);
+    width: min(100%,198px);
+  }
+  .hero-story-invitation {
+    display: none;
   }
   .has-notice .entry-form-view .page-title p,.has-notice .home-hero .hero-date,.has-notice .home-hero .hero-copy p,.has-notice .hero-teaware>span {
     display: none;
   }
   .has-notice .tea-illustration {
-    width: min(100%,140px);
+    width: min(100%,128px);
   }
 }
 @media(prefers-reduced-motion:reduce) {
