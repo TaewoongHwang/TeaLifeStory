@@ -1253,6 +1253,130 @@ input::-webkit-inner-spin-button {
 .stats-panel {
   margin-top: 30px;
 }
+.stats-rating-count,.stats-category-rating {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.stats-journal-note {
+  border-left: 2px solid var(--clay);
+  margin: 23px 0 0;
+  padding-left: 14px;
+  font-size: 13px;
+}
+.stats-journal-note strong {
+  color: var(--tea);
+  font-weight: 500;
+}
+.stats-journal-note span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.stats-undated-note {
+  margin-top: 15px;
+}
+.month-trend {
+  display: grid;
+  grid-template-columns: repeat(6,minmax(0,1fr));
+  gap: 2px;
+  margin-top: 23px;
+}
+.trend-month {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 3px;
+  padding: 9px 0 4px;
+  background: transparent;
+  font-size: 11px;
+  min-width: 0;
+  min-height: 44px;
+}
+.trend-month strong {
+  font-weight: 500;
+}
+.trend-month.selected {
+  background: var(--tint);
+  color: var(--tea);
+}
+.trend-track {
+  display: flex;
+  align-items: flex-end;
+  height: 75px;
+  width: 15px;
+  background: #f0e2d4;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.trend-track>span {
+  display: block;
+  width: 100%;
+  background: var(--clay);
+}
+.selected .trend-track>span {
+  background: var(--tea);
+}
+.trend-selection {
+  min-height: 14px;
+  font-size: 10px;
+}
+.stats-view .bar-row>div:first-child {
+  gap: 12px;
+  align-items: flex-start;
+}
+.stats-category-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.stats-view .bar-row strong {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.stats-memory-list {
+  margin-top: 16px;
+}
+.stats-memory {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 0;
+  border-top: 1px solid var(--line);
+  min-height: 44px;
+}
+.stats-memory>div {
+  flex: 1;
+  min-width: 0;
+}
+.stats-memory-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+  font-size: 14px;
+  font-weight: 500;
+}
+.stats-memory-meta {
+  display: block;
+  margin-top: 6px;
+  line-height: 1.7;
+  font-size: 11px;
+  color: var(--muted);
+}
+.stats-memory-favorite {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 9px;
+  color: var(--tea);
+}
+.stats-memory-favorite svg {
+  width: 13px;
+  height: 13px;
+}
 .bar-chart {
   display: flex;
   flex-direction: column;
