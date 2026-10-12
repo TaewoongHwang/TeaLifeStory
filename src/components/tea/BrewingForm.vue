@@ -1,7 +1,9 @@
 <script setup>
 import { computed } from 'vue'
 import { useSettingsStore } from '../../stores/settingsStore.js'
-import FormField from '../common/FormField.vue'
+import ChoiceButtons from '../common/ChoiceButtons.vue'
+import NumberQuickInput from '../common/NumberQuickInput.vue'
+import { choiceShortcuts, numericInputs } from '../../config/entryInputs.js'
 const brewing = defineModel({ type: Object, required: true })
 const settings = useSettingsStore()
 const tools = computed(() => [...new Set([...settings.tools.map((item) => item.name), brewing.value.tool].filter(Boolean))])
@@ -9,11 +11,12 @@ const materials = computed(() => [...new Set([...settings.materials.map((item) =
 </script>
 <template>
   <section class="form-section"><div class="section-label"><span>02</span><h2>우림 <small>BREWING</small></h2></div>
-    <div class="field-grid"><FormField v-slot="{ id }" label="도구"><select :id="id" v-model="brewing.tool"><option value="">선택하지 않음</option><option v-for="name in tools" :key="name">{{ name }}</option></select></FormField><FormField v-slot="{ id }" label="재질"><select :id="id" v-model="brewing.material"><option value="">선택하지 않음</option><option v-for="name in materials" :key="name">{{ name }}</option></select></FormField></div>
-    <FormField v-slot="{ id }" label="물 용량"><div class="input-unit"><input :id="id" v-model.number="brewing.volume" type="number" min="0" max="100000" step="1" inputmode="numeric" placeholder="예: 150" /><span>cc</span></div></FormField>
-    <div class="field-grid">
-      <FormField v-slot="{ id }" label="물 온도" hint="선택 사항 · 0~100°C"><div class="input-unit"><input :id="id" v-model.number="brewing.waterTemperature" type="number" min="0" max="100" step="any" inputmode="decimal" placeholder="예: 85" /><span>°C</span></div></FormField>
-      <FormField v-slot="{ id }" label="우림 시간" hint="선택 사항 · 초 단위"><div class="input-unit"><input :id="id" v-model.number="brewing.steepTime" type="number" min="0" max="100000" step="any" inputmode="decimal" placeholder="예: 60" /><span>초</span></div></FormField>
+    <ChoiceButtons v-model="brewing.tool" label="도구" :options="tools" :shortcuts="choiceShortcuts.tools" />
+    <ChoiceButtons v-model="brewing.material" label="재질" :options="materials" />
+    <div class="quick-input-grid">
+      <NumberQuickInput v-model="brewing.volume" label="물 용량" :config="numericInputs.volume" />
+      <NumberQuickInput v-model="brewing.waterTemperature" label="물 온도" hint="선택 사항 · 0~100°C" :config="numericInputs.waterTemperature" />
+      <NumberQuickInput v-model="brewing.steepTime" label="우림 시간" hint="선택 사항 · 초 단위" :config="numericInputs.steepTime" />
     </div>
   </section>
 </template>

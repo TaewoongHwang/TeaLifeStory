@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 import { nav } from './helpers/navigation.js'
+import { chooseOption } from './helpers/entry-form.js'
 const fontFile = 'fonts/PretendardVariable.woff2'
 
 function diagnostics(page) {
@@ -127,7 +128,7 @@ test('loaded webfont keeps long Korean and English diary text, inputs, statistic
   const englishTag = 'QuietTeaStory'.repeat(8).slice(0, 100)
   await nav(page, '새 기록')
   await page.getByLabel('차 이름 *').fill(name)
-  await page.getByLabel('차 종류', { exact: true }).selectOption('보이차')
+  await chooseOption(page, '차 종류', '보이차')
   await page.getByRole('button', { name: '4점', exact: true }).click()
   await page.getByLabel('태그', { exact: true }).fill(`${koreanTag}, ${englishTag}`)
   await page.getByLabel('메모', { exact: true }).fill(notes)

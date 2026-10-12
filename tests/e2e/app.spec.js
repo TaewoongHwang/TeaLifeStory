@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { testBase } from '../../scripts/test-base.js'
 import { createEntry } from '../../src/utils/entry.js'
 import { nav } from './helpers/navigation.js'
+import { chooseOption } from './helpers/entry-form.js'
 
 async function start(page) {
   await page.goto('./')
@@ -11,7 +12,7 @@ async function start(page) {
 async function create(page, name, { rating = 0, category = '', feeling = '', tags = '' } = {}) {
   await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
   await page.getByLabel('차 이름 *').fill(name)
-  if (category) await page.getByLabel('차 종류', { exact: true }).selectOption(category)
+  if (category) await chooseOption(page, '차 종류', category)
   if (rating) await page.getByRole('button', { name: `${rating}점`, exact: true }).click()
   if (feeling) await page.getByLabel('차를 마시면서 느낀 점').fill(feeling)
   if (tags) await page.getByLabel('태그', { exact: true }).fill(tags)
@@ -27,7 +28,7 @@ test('name-only CRUD, rating and photo survive refresh; search and stats reflect
   await page.reload()
   await expect(page.getByRole('heading', { name: '우전 녹차', exact: true })).toBeVisible()
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
-  await page.getByLabel('차 종류', { exact: true }).selectOption('녹차')
+  await chooseOption(page, '차 종류', '녹차')
   await page.getByLabel('차 사용량', { exact: true }).fill('4')
   await page.getByRole('button', { name: '5점', exact: true }).click()
   await page.getByLabel('차를 마시면서 느낀 점').fill('아침 공기가 차가워지면서 녹차 향이 더 선명하게 느껴졌다.')
@@ -121,9 +122,9 @@ test('custom categories, tools and materials persist; rename does not alter hist
   await page.reload()
   await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
   await page.getByLabel('차 이름 *').fill('나의 말차')
-  await page.getByLabel('차 종류', { exact: true }).selectOption('말차')
-  await page.getByLabel('도구', { exact: true }).selectOption('여행용 개완')
-  await page.getByLabel('재질', { exact: true }).selectOption('스테인리스')
+  await chooseOption(page, '차 종류', '말차')
+  await chooseOption(page, '도구', '여행용 개완')
+  await chooseOption(page, '재질', '스테인리스')
   await page.getByRole('button', { name: '기록 저장', exact: true }).click()
   await expect(page.locator('.detail-paper')).toContainText('스테인리스')
   await page.getByRole('navigation').getByRole('link', { name: '설정', exact: true }).click()
@@ -136,7 +137,7 @@ test('custom categories, tools and materials persist; rename does not alter hist
   await expect(page.locator('.tea-card')).toContainText('말차')
   await page.locator('.tea-card').click()
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
-  await expect(page.getByLabel('차 종류', { exact: true })).toHaveValue('말차')
+  await expect(page.getByRole('group', { name: '차 종류', exact: true }).getByRole('button', { name: '말차', exact: true })).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('subpath manifest, icon and service worker work; saved records and unvisited routes work offline', async ({ page, context, request }) => {
