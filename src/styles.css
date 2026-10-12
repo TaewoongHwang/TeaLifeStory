@@ -1,6 +1,13 @@
 @charset "UTF-8";
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/PretendardVariable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 45 920;
+  font-display: swap;
+}
 :root {
-  font-family: "Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-family: var(--font-ui);
   color: var(--ink);
   background: var(--background);
   font-synthesis: none;
@@ -12,7 +19,7 @@
   --clay: #b77d62;
   --muted: #756257;
   --line: #dbcbbc;
-  --serif: Georgia,"Noto Serif KR","Batang",serif;
+  --font-ui: "Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
 }
 * {
   box-sizing: border-box;
@@ -114,14 +121,16 @@ small {
   display: flex;
   align-items: center;
   gap: 11px;
-  font-family: var(--serif);
+  font-family: inherit;
   font-size: 21px;
+  font-weight: 600;
   letter-spacing: -.5px;
 }
 .brand small {
   display: block;
-  font-family: system-ui,sans-serif;
+  font-family: inherit;
   font-size: 10px;
+  font-weight: 400;
   letter-spacing: 2px;
   color: var(--muted);
   margin-top: 5px;
@@ -160,7 +169,7 @@ main {
   letter-spacing: 2.6px;
   color: var(--muted);
   margin-bottom: 12px;
-  font-family: Georgia,serif;
+  font-family: inherit;
 }
 .page-title {
   margin-bottom: 27px;
@@ -220,7 +229,7 @@ main {
   transform: translateX(-50%);
   width: min(100%,720px);
   display: grid;
-  grid-template-columns: repeat(5,1fr);
+  grid-template-columns: repeat(3,1fr);
   padding: 10px 14px max(10px,env(safe-area-inset-bottom));
   background: var(--paper);
   border-top: 1px solid var(--line);
@@ -298,10 +307,10 @@ main {
   margin: 0 0 20px;
 }
 .hero-copy h1 {
-  font-family: var(--serif);
+  font-family: inherit;
   font-size: 30px;
   line-height: 1.5;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: -1px;
   margin-bottom: 14px;
 }
@@ -325,7 +334,7 @@ main {
 .hero-teaware>span {
   display: block;
   color: var(--muted);
-  font-family: var(--serif);
+  font-family: inherit;
   font-size: 10px;
   line-height: 1.8;
   margin-top: 5px;
@@ -369,7 +378,7 @@ main {
 .small-leaf {
   margin-left: 12px;
   color: var(--muted);
-  font-family: var(--serif);
+  font-family: inherit;
   font-size: 17px;
 }
 .monthly-note a {
@@ -408,7 +417,7 @@ main {
 .section-heading h2 small {
   font-size: 8px;
   display: block;
-  font-family: Georgia,serif;
+  font-family: inherit;
   font-weight: 400;
   letter-spacing: 1.8px;
   color: var(--muted);
@@ -466,7 +475,7 @@ main {
   color: var(--muted);
 }
 .card-when {
-  font-family: var(--serif);
+  font-family: inherit;
   font-style: italic;
   color: var(--tea);
   margin-right: 8px;
@@ -487,7 +496,7 @@ main {
   flex: 1;
 }
 .tea-card h3 {
-  font-family: var(--serif);
+  font-family: inherit;
   font-weight: 500;
   margin-bottom: 4px;
   font-size: 21px;
@@ -539,7 +548,7 @@ main {
   margin-top: 6px;
 }
 .entry-moments dt {
-  font-family: var(--serif);
+  font-family: inherit;
   font-style: italic;
   color: var(--muted);
   line-height: 1.8;
@@ -583,13 +592,13 @@ main {
   color: var(--muted);
 }
 .home-footer>span {
-  font-family: var(--serif);
+  font-family: inherit;
   font-size: 27px;
   display: block;
   margin-bottom: 10px;
 }
 .home-footer p {
-  font-family: var(--serif);
+  font-family: inherit;
   font-size: 11px;
   line-height: 2;
   margin-bottom: 15px;
@@ -713,7 +722,7 @@ input::-webkit-inner-spin-button {
   margin-bottom: 22px;
 }
 .section-label>span {
-  font-family: Georgia,serif;
+  font-family: inherit;
   font-size: 14px;
   color: var(--muted);
   font-style: italic;
@@ -724,10 +733,10 @@ input::-webkit-inner-spin-button {
   font-size: 17px;
   font-weight: 500;
   margin: 0;
-  font-family: var(--serif);
+  font-family: inherit;
 }
 .section-label h2 small {
-  font-family: Georgia,serif;
+  font-family: inherit;
   font-size: 9px;
   letter-spacing: 1.4px;
   color: var(--muted);
@@ -1063,7 +1072,7 @@ input::-webkit-inner-spin-button {
   letter-spacing: 0;
 }
 .detail-header h1 {
-  font-family: var(--serif);
+  font-family: inherit;
   margin-bottom: 12px;
   font-size: 30px;
 }
@@ -1089,13 +1098,13 @@ input::-webkit-inner-spin-button {
   border-bottom: 1px solid var(--line);
 }
 .detail-section h2 {
-  font-family: var(--serif);
+  font-family: inherit;
   font-size: 17px;
   font-weight: 500;
   margin-bottom: 21px;
 }
 .detail-section h2 small {
-  font-family: system-ui,sans-serif;
+  font-family: inherit;
   margin-left: 8px;
   color: var(--muted);
   font-size: 9px;
@@ -1130,7 +1139,7 @@ input::-webkit-inner-spin-button {
   margin-bottom: 0;
 }
 .detail-context dt {
-  font-family: var(--serif);
+  font-family: inherit;
   font-size: 14px;
   color: var(--muted);
   width: 45px;
@@ -1151,7 +1160,7 @@ input::-webkit-inner-spin-button {
   flex-shrink: 0;
 }
 .feeling-note {
-  font-family: var(--serif);
+  font-family: inherit;
   font-size: 14px;
   color: var(--tea);
   line-height: 2.1;
@@ -1220,12 +1229,12 @@ input::-webkit-inner-spin-button {
   margin-bottom: 15px;
 }
 .stat-card strong {
-  font-family: var(--serif);
+  font-family: inherit;
   font-weight: 400;
   font-size: 35px;
 }
 .stat-card strong small {
-  font-family: system-ui,sans-serif;
+  font-family: inherit;
   font-size: 11px;
   color: var(--muted);
 }
@@ -1513,7 +1522,7 @@ input::-webkit-inner-spin-button {
   margin: 37px 0 12px;
 }
 .settings-footer>span {
-  font-family: Georgia,serif;
+  font-family: inherit;
   font-size: 19px;
 }
 .settings-footer p {

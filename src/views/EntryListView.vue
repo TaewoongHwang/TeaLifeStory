@@ -7,6 +7,7 @@ import TeaCard from '../components/tea/TeaCard.vue'
 import AppIcon from '../components/common/AppIcon.vue'
 import FormField from '../components/common/FormField.vue'
 import EmptyState from '../components/common/EmptyState.vue'
+defineProps({ embedded: Boolean })
 const store = useEntryStore()
 const settings = useSettingsStore()
 const filters = reactive({ search: '', category: '', rating: '', from: '', to: '', sort: 'newest', favoritesOnly: false })
@@ -16,7 +17,7 @@ const ratingLabel = computed(() => filters.rating === '' ? '모든 평점' : fil
 function reset() { Object.assign(filters, { search: '', category: '', rating: '', from: '', to: '', sort: 'newest', favoritesOnly: false }) }
 </script>
 <template>
-  <div><div class="page-eyebrow">PAGES OF TEA</div><div class="page-title"><h1>쌓여 가는 차 이야기</h1><p>다시 펼칠 때마다 그날의 차향이 떠오르도록.</p></div>
+  <div><template v-if="!embedded"><div class="page-eyebrow">PAGES OF TEA</div><div class="page-title"><h1>쌓여 가는 차 이야기</h1><p>다시 펼칠 때마다 그날의 차향이 떠오르도록.</p></div></template>
     <div class="search-box"><AppIcon name="search" /><label class="sr-only" for="entry-search">차 이름, 메모, 태그 검색</label><input id="entry-search" v-model="filters.search" type="search" placeholder="차 이름, 메모, 태그 검색" /></div>
     <label class="checkbox-field"><input v-model="filters.favoritesOnly" type="checkbox" /><span>즐겨찾기만 보기</span></label>
     <details class="filter-panel"><summary>필터와 정렬 <span>{{ filters.category || '모든 차' }} · {{ ratingLabel }}{{ filters.from || filters.to ? ' · 기간 적용' : '' }}</span></summary><div class="field-grid"><FormField v-slot="{ id }" label="차 종류"><select :id="id" v-model="filters.category"><option value="">모든 차</option><option v-for="name in categories" :key="name">{{ name }}</option></select></FormField><FormField v-slot="{ id }" label="평점"><select :id="id" v-model="filters.rating"><option value="">모든 평점</option><option value="0">미입력</option><option v-for="star in 5" :key="star" :value="String(star)">{{ star }}점</option></select></FormField><FormField v-slot="{ id }" label="시작일"><input :id="id" v-model="filters.from" type="date" /></FormField><FormField v-slot="{ id }" label="종료일"><input :id="id" v-model="filters.to" type="date" /></FormField><FormField v-slot="{ id }" label="정렬"><select :id="id" v-model="filters.sort"><option value="newest">최신순</option><option value="oldest">오래된순</option><option value="rating">평점순</option></select></FormField><button class="button text-button" type="button" @click="reset">필터 초기화</button></div></details>

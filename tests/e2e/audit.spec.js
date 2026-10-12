@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
+import { nav } from './helpers/navigation.js'
 
 function diagnostics(page) {
   const issues = []
@@ -16,9 +17,6 @@ async function start(page) {
   await page.goto(process.env.AUDIT_DEV_URL || './')
   await expect(page.getByRole('heading', { name: '오늘은 어떤 차를 마셨나요?' })).toBeVisible()
 }
-async function nav(page, name) {
-  await page.getByRole('navigation').getByRole('link', { name, exact: true }).click()
-}
 async function create(page, name, rating = 0) {
   await nav(page, '새 기록')
   await page.getByLabel('차 이름 *').fill(name)
@@ -29,7 +27,7 @@ async function create(page, name, rating = 0) {
 async function remove(page) {
   await page.getByRole('button', { name: '삭제', exact: true }).click()
   await page.getByRole('dialog').getByRole('button', { name: '삭제하기', exact: true }).click()
-  await expect(page).toHaveURL(/#\/entries$/)
+  await expect(page).toHaveURL(/#\/$/)
 }
 async function backup(page) {
   await nav(page, '설정')

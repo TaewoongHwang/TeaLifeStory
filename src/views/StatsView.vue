@@ -13,6 +13,7 @@ const monthLabel = (value) => `${value.slice(0, 4)}년 ${Number(value.slice(5))}
 </script>
 <template>
   <div class="stats-view">
+    <RouterLink to="/settings" class="button text-button"><AppIcon name="back" />설정으로 돌아가기</RouterLink>
     <div class="page-eyebrow">MY TEA RHYTHM</div>
     <div class="page-title"><h1>나의 차 취향</h1><p>차와 함께한 날들, 마음에 남은 한 잔을 돌아봐요.</p></div>
     <div class="month-control"><label for="stats-month">돌아보고 싶은 달</label><input id="stats-month" v-model="month" type="month" min="0001-01" max="9999-12" /></div>

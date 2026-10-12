@@ -6,6 +6,8 @@
 
 생성 원본과 전체 최종 프롬프트는 `assets/generated/PROMPTS.md`에 보관합니다. built-in image_gen으로 새 사진 2개를 만들었으며 앱에는 WebP와 크기별 PNG만 배포합니다. `npm run icons`로 보존된 원본의 배포 파일을 재생성할 수 있습니다(기존 Playwright Chromium 설치 필요). 이미지 내용은 원본을 유지하고 크기·포맷·maskable 안전 여백만 조정합니다.
 
+전체 UI에는 [Pretendard](https://github.com/orioncactus/pretendard)의 v1.3.9 Variable 웹폰트를 사용합니다. 원본 WOFF2·SIL OFL 라이선스·출처/해시는 `public/fonts`에 보관합니다. 앱 안에서 폰트를 제공하고 preload·swap·PWA 캐시를 적용해 외부 CDN에 요청하지 않습니다. 로딩 전이나 미지원 한자·이모지는 시스템 글꼴로 보완하며 기록 내용은 바꾸지 않습니다.
+
 ## 실행
 
 Node.js 22.12 이상이 필요합니다. 개발·배포 검증은 Node.js 24로 진행했습니다.
@@ -62,6 +64,7 @@ src/
   utils/             데이터 생성·정규화·검색·통계, 사진 처리
 assets/generated/    생성형 이미지 원본과 최종 프롬프트
 public/images/       홈 다구 사진 WebP 두 크기
+public/fonts/        Pretendard Variable 원본·라이선스·출처
 public/icons/        새 PNG와 192/512px, maskable, Apple 아이콘
 tests/               데이터·브라우저 검증
 .github/workflows/   main push 시 GitHub Pages 배포

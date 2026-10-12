@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { nav as navigate } from './helpers/navigation.js'
 
 test('production manifest and service worker meet Chromium installability checks', async ({ page, context }) => {
   await page.goto('./')
@@ -32,7 +33,7 @@ test('install request survives route changes; dismissals, failures and installat
       window.dispatchEvent(event)
     }, fail)
   }
-  const nav = (name) => page.getByRole('navigation').getByRole('link', { name, exact: true }).click()
+  const nav = (name) => navigate(page, name)
   await requestInstall()
   await nav('기록')
   await nav('설정')

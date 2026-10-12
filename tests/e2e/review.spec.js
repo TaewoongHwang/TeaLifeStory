@@ -1,11 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { nav } from './helpers/navigation.js'
 
 async function start(page) {
   await page.goto(process.env.AUDIT_DEV_URL || './')
   await expect(page.getByRole('heading', { name: '오늘은 어떤 차를 마셨나요?' })).toBeVisible()
-}
-async function nav(page, name) {
-  await page.getByRole('navigation').getByRole('link', { name, exact: true }).click()
 }
 async function create(page, name, rating = 0) {
   await nav(page, '새 기록')

@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { testBase } from '../../scripts/test-base.js'
 import { createEntry } from '../../src/utils/entry.js'
+import { nav } from './helpers/navigation.js'
 
 async function start(page) {
   await page.goto('./')
@@ -42,7 +43,7 @@ test('name-only CRUD, rating and photo survive refresh; search and stats reflect
   await expect(page.locator('.tea-card')).toHaveCount(1)
   await page.getByLabel('차 이름, 메모, 태그 검색').fill('없는 차')
   await expect(page.locator('.tea-card')).toHaveCount(0)
-  await page.getByRole('navigation').getByRole('link', { name: '통계', exact: true }).click()
+  await nav(page, '통계')
   await expect(page.locator('.stat-card').nth(0)).toContainText('1 건')
   await expect(page.locator('.stat-card').nth(1)).toContainText('5.0')
   await expect(page.locator('.bar-row')).toContainText('녹차')
@@ -50,7 +51,7 @@ test('name-only CRUD, rating and photo survive refresh; search and stats reflect
   await page.locator('.tea-card').click()
   await page.getByRole('button', { name: '삭제', exact: true }).click()
   await page.getByRole('dialog').getByRole('button', { name: '삭제하기', exact: true }).click()
-  await expect(page).toHaveURL(/#\/entries$/)
+  await expect(page).toHaveURL(/#\/$/)
   await expect(page.locator('.tea-card')).toHaveCount(0)
   await page.reload()
   await expect(page.getByRole('heading', { name: '아직 담긴 이야기가 없어요' })).toBeVisible()
@@ -70,7 +71,7 @@ test('draft resumes after refresh; new draft discards old; saving removes draft'
   await page.getByRole('button', { name: '이어쓰기', exact: true }).click()
   await expect(page.getByLabel('차 이름 *')).toHaveValue('작성 중인 차')
   await expect(page.getByLabel('메모', { exact: true })).toHaveValue('초안이 유지되는지 확인')
-  await page.getByRole('navigation').getByRole('link', { name: '홈', exact: true }).click()
+  await nav(page, '홈')
   await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
   await page.getByRole('button', { name: '새로 작성', exact: true }).click()
   await expect(page.getByLabel('차 이름 *')).toHaveValue('')
@@ -91,7 +92,7 @@ test('JSON export and confirmed replace restore records; invalid file preserves 
   const download = await downloadPromise
   const data = JSON.parse(readFileSync(await download.path(), 'utf8'))
   expect(data.data.entries).toHaveLength(1)
-  await page.getByRole('navigation').getByRole('link', { name: '홈', exact: true }).click()
+  await nav(page, '홈')
   await create(page, '교체할 녹차', { category: '녹차' })
   await page.getByRole('navigation').getByRole('link', { name: '설정', exact: true }).click()
   await page.locator('#backup-file').setInputFiles({ name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(data)) })
@@ -156,9 +157,9 @@ test('subpath manifest, icon and service worker work; saved records and unvisite
   await page.reload()
   await expect(page.getByRole('heading', { name: '오프라인 차', exact: true })).toBeVisible()
   await expect(page.getByText(/오프라인 ·/)).toBeVisible()
-  await page.getByRole('navigation').getByRole('link', { name: '통계', exact: true }).click()
+  await nav(page, '통계')
   await expect(page.locator('.stat-card').first()).toContainText('1 건')
-  await page.getByRole('navigation').getByRole('link', { name: '홈', exact: true }).click()
+  await nav(page, '홈')
   await create(page, '오프라인에서 새 기록')
   await page.reload()
   await expect(page.getByRole('heading', { name: '오프라인에서 새 기록', exact: true })).toBeVisible()
@@ -171,7 +172,7 @@ test('360/390/430px screens have no horizontal overflow; production is empty and
   await page.screenshot({ path: 'test-results/home-empty-390.png', fullPage: true })
   await create(page, '운남 보이차', { category: '보이차', rating: 4, feeling: '비가 오는 저녁. 평소보다 부드럽고 편안했다.' })
   await create(page, '우전 녹차', { category: '녹차', rating: 5, feeling: '아침 공기가 차가워지면서 녹차 향이 더 선명하게 느껴졌다.' })
-  await page.getByRole('navigation').getByRole('link', { name: '홈', exact: true }).click()
+  await nav(page, '홈')
   await page.getByRole('button', { name: '알림 닫기', exact: true }).click()
   await page.screenshot({ path: 'test-results/home-mobile-390.png' })
   for (const width of [360, 390, 430, 768, 1280]) {

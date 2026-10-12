@@ -5,7 +5,7 @@ export default createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', component: HomeView },
-    { path: '/entries', component: () => import('../views/EntryListView.vue') },
+    { path: '/entries', redirect: '/' },
     { path: '/entries/new', component: () => import('../views/EntryFormView.vue') },
     { path: '/entries/:id', component: () => import('../views/EntryDetailView.vue') },
     { path: '/entries/:id/edit', component: () => import('../views/EntryFormView.vue') },

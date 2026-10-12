@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { createEntry } from '../../src/utils/entry.js'
 
-const nav = (page, name) => page.getByRole('navigation').getByRole('link', { name, exact: true }).click()
+import { nav } from './helpers/navigation.js'
 
 function observeErrors(page) {
   const errors = []

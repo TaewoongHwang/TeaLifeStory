@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { createEntry } from '../../src/utils/entry.js'
 
 const heroDescription = '자사호와 찻잔, 차가 담긴 공도배가 놓인 차 자리'
-const nav = (page, name) => page.getByRole('navigation').getByRole('link', { name, exact: true }).click()
+import { nav } from './helpers/navigation.js'
 
 function diagnostics(page) {
   const issues = []
