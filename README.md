@@ -63,7 +63,7 @@ src/
   views/             홈, 목록, 작성·수정, 상세, 통계, 설정
   utils/             데이터 생성·정규화·검색·통계, 사진 처리
 assets/generated/    생성형 이미지 원본과 최종 프롬프트
-public/images/       홈 다구 사진 WebP 두 크기
+public/images/       홈 차구 사진 WebP 두 크기
 public/fonts/        Pretendard Variable 원본·라이선스·출처
 public/icons/        새 PNG와 192/512px, maskable, Apple 아이콘
 tests/               데이터·브라우저 검증

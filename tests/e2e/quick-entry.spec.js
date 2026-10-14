@@ -28,13 +28,13 @@ test('choice and numeric shortcuts preserve drafts, precise direct inputs and ed
   await start(page)
   await page.getByLabel('차 이름 *').fill('버튼으로 남긴 차')
   for (const label of numericLabels) await expect(page.getByLabel(label, { exact: true })).toHaveValue('')
-  await chooseOption(page, '차 종류', '보이차')
-  await expect(page.getByRole('group', { name: '차 종류', exact: true }).getByRole('button', { name: '보이차', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await chooseOption(page, '차 종류', '흑차')
+  await expect(page.getByRole('group', { name: '차 종류', exact: true }).getByRole('button', { name: '흑차', exact: true })).toHaveAttribute('aria-pressed', 'true')
   for (const label of numericLabels) await expect(page.getByLabel(label, { exact: true })).toHaveValue('')
-  await chooseOption(page, '차 종류', '보이차')
+  await chooseOption(page, '차 종류', '흑차')
   await expect(page.getByRole('group', { name: '차 종류', exact: true }).locator('[aria-pressed=true]')).toHaveCount(0)
   await chooseOption(page, '차 종류', '녹차')
-  await chooseOption(page, '도구', '개완')
+  await chooseOption(page, '사용한 차구', '개완')
   await chooseOption(page, '재질', '자기')
   await page.getByRole('button', { name: '5g', exact: true }).click()
   await page.getByRole('button', { name: '차 사용량 0.5g 줄이기', exact: true }).click()
@@ -54,14 +54,14 @@ test('choice and numeric shortcuts preserve drafts, precise direct inputs and ed
   for (const [label, value] of [['차 사용량', '4.5'], ['물 용량', '175'], ['물 온도', '90.55'], ['우림 시간', '65']]) {
     await expect(page.getByLabel(label, { exact: true })).toHaveValue(value)
   }
-  await expect(page.getByRole('group', { name: '도구', exact: true }).getByRole('button', { name: '개완', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('group', { name: '사용한 차구', exact: true }).getByRole('button', { name: '개완', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: '기록 저장', exact: true }).click()
   await expect(page.getByRole('heading', { name: '버튼으로 남긴 차', exact: true })).toBeVisible()
   await page.reload()
   for (const text of ['4.5 g', '175 cc', '90.55 °C', '65 초']) await expect(page.locator('.detail-brew')).toContainText(text)
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
   for (const label of numericLabels) await page.getByRole('button', { name: `${label} 지우기`, exact: true }).click()
-  await chooseOption(page, '도구', '개완')
+  await chooseOption(page, '사용한 차구', '개완')
   await chooseOption(page, '재질', '자기')
   await page.getByRole('button', { name: '수정 저장', exact: true }).click()
   await expect(page.getByRole('heading', { name: '버튼으로 남긴 차', exact: true })).toBeVisible()
@@ -144,7 +144,7 @@ test('historical and long custom choices stay usable on mobile with keyboard, to
   await nav(page, '기록')
   await page.locator('.tea-card').click()
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
-  for (const [label, name] of [['차 종류', '이전 차 종류'], ['도구', '이전 도구'], ['재질', '이전 재질']]) {
+  for (const [label, name] of [['차 종류', '이전 차 종류'], ['사용한 차구', '이전 도구'], ['재질', '이전 재질']]) {
     await expect(page.getByRole('group', { name: label, exact: true }).getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true')
   }
   await page.getByRole('button', { name: '수정 저장', exact: true }).click()
@@ -159,7 +159,7 @@ test('historical and long custom choices stay usable on mobile with keyboard, to
     await page.getByLabel('차 이름 *').scrollIntoViewIfNeeded()
     const firstInput = await page.getByLabel('차 이름 *').evaluate((input) => ({ bottom: input.getBoundingClientRect().bottom, saveTop: document.querySelector('.save-bar').getBoundingClientRect().top }))
     expect(firstInput.bottom).toBeLessThanOrEqual(firstInput.saveTop)
-    for (const [label, suffix] of [['차 종류', '종류'], ['도구', '도구'], ['재질', '재질']]) {
+    for (const [label, suffix] of [['차 종류', '종류'], ['사용한 차구', '도구'], ['재질', '재질']]) {
       const group = page.getByRole('group', { name: label, exact: true })
       const button = group.getByRole('button', { name: `${long.slice(0, 98)}${suffix}`, exact: true })
       if (!await button.isVisible()) await group.locator('summary').click()

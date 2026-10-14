@@ -112,7 +112,7 @@ test('JSON export and confirmed replace restore records; invalid file preserves 
 test('custom categories, tools and materials persist; rename does not alter historical records', async ({ page }) => {
   await start(page)
   await page.getByRole('navigation').getByRole('link', { name: '설정', exact: true }).click()
-  for (const [store, label, name] of [['categories', '차 종류', '말차'], ['tools', '도구', '여행용 개완'], ['materials', '재질', '스테인리스']]) {
+  for (const [store, label, name] of [['categories', '차 종류', '말차'], ['tools', '내 차구', '여행용 개완'], ['materials', '재질', '스테인리스']]) {
     const manager = page.locator('.option-manager').filter({ has: page.locator(`#option-${store}`) })
     await manager.locator('summary').click()
     await page.getByLabel(`${label} 추가할 이름`, { exact: true }).fill(name)
@@ -123,7 +123,7 @@ test('custom categories, tools and materials persist; rename does not alter hist
   await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
   await page.getByLabel('차 이름 *').fill('나의 말차')
   await chooseOption(page, '차 종류', '말차')
-  await chooseOption(page, '도구', '여행용 개완')
+  await chooseOption(page, '사용한 차구', '여행용 개완')
   await chooseOption(page, '재질', '스테인리스')
   await page.getByRole('button', { name: '기록 저장', exact: true }).click()
   await expect(page.locator('.detail-paper')).toContainText('스테인리스')
@@ -171,7 +171,7 @@ test('360/390/430px screens have no horizontal overflow; production is empty and
   await start(page)
   await expect(page.locator('.tea-card')).toHaveCount(0)
   await page.screenshot({ path: 'test-results/home-empty-390.png', fullPage: true })
-  await create(page, '운남 보이차', { category: '보이차', rating: 4, feeling: '비가 오는 저녁. 평소보다 부드럽고 편안했다.' })
+  await create(page, '운남 보이차', { category: '흑차', rating: 4, feeling: '비가 오는 저녁. 평소보다 부드럽고 편안했다.' })
   await create(page, '우전 녹차', { category: '녹차', rating: 5, feeling: '아침 공기가 차가워지면서 녹차 향이 더 선명하게 느껴졌다.' })
   await nav(page, '홈')
   await page.getByRole('button', { name: '알림 닫기', exact: true }).click()

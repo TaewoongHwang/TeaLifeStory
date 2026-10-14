@@ -1,5 +1,5 @@
 import { openDB } from 'idb'
-import { defaults, optionStores } from '../config/defaults.js'
+import { defaults, optionStores, categorySeedIds } from '../config/defaults.js'
 
 export const storeNames = ['entries', ...optionStores, 'settings']
 let connection
@@ -11,7 +11,7 @@ export function getDB() {
         db.createObjectStore('settings', { keyPath: 'key' })
         for (const store of optionStores) {
           db.createObjectStore(store, { keyPath: 'id' })
-          defaults[store].forEach((name, index) => transaction.objectStore(store).put({ id: `${store}-${index}`, name }))
+          defaults[store].forEach((name, index) => transaction.objectStore(store).put({ id: store === 'categories' ? categorySeedIds[name] : `${store}-${index}`, name }))
         }
       },
       blocking() {

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useSettingsStore } from '../stores/settingsStore.js'
-import { optionLabels } from '../config/defaults.js'
+import { optionLabels, displayToolName } from '../config/defaults.js'
 import AppIcon from './common/AppIcon.vue'
 const props = defineProps({ storeName: { type: String, required: true } })
 const settings = useSettingsStore()
@@ -9,7 +9,8 @@ const name = ref('')
 const editId = ref(null)
 const busy = ref(false)
 const error = ref('')
-function edit(item) { editId.value = item.id; name.value = item.name; error.value = '' }
+function displayName(item) { return props.storeName === 'tools' ? displayToolName(item.name, settings.tools.map((option) => option.name)) : item.name }
+function edit(item) { editId.value = item.id; name.value = props.storeName === 'tools' ? displayToolName(item.name) : item.name; error.value = '' }
 function cancel() { editId.value = null; name.value = ''; error.value = '' }
 async function save() {
   busy.value = true
@@ -19,7 +20,7 @@ async function save() {
   finally { busy.value = false }
 }
 async function remove(item) {
-  if (!window.confirm(`“${item.name}”을 선택 목록에서 삭제할까요? 기존 차 기록의 내용은 유지됩니다.`)) return
+  if (!window.confirm(`“${displayName(item)}”을 선택 목록에서 삭제할까요? 기존 차 기록의 내용은 유지됩니다.`)) return
   busy.value = true
   error.value = ''
   try { await settings.deleteOption(props.storeName, item.id); if (editId.value === item.id) cancel() }
@@ -28,5 +29,5 @@ async function remove(item) {
 }
 </script>
 <template>
-  <details class="option-manager"><summary>{{ optionLabels[storeName] }} <span>{{ settings[storeName].length }}개</span></summary><ul class="option-list"><li v-for="item in settings[storeName]" :key="item.id"><span>{{ item.name }}</span><div><button type="button" :disabled="busy" :aria-label="`${item.name} 이름 수정`" @click="edit(item)"><AppIcon name="edit" /></button><button type="button" :disabled="busy" :aria-label="`${item.name} 선택 목록에서 삭제`" @click="remove(item)"><AppIcon name="close" /></button></div></li></ul><form class="option-form" @submit.prevent="save"><label class="sr-only" :for="`option-${storeName}`">{{ optionLabels[storeName] }} {{ editId ? '수정할' : '추가할' }} 이름</label><input :id="`option-${storeName}`" v-model="name" required maxlength="100" :placeholder="`${optionLabels[storeName]} 이름`" :disabled="busy" /><button class="button secondary" :disabled="busy">{{ editId ? '수정' : '추가' }}</button><button v-if="editId" type="button" class="button text-button" @click="cancel">취소</button></form><p v-if="error" class="inline-error" role="alert">{{ error }}</p></details>
+  <details class="option-manager"><summary>{{ optionLabels[storeName] }} <span>{{ settings[storeName].length }}개</span></summary><ul class="option-list"><li v-for="item in settings[storeName]" :key="item.id"><span>{{ displayName(item) }}</span><div><button type="button" :disabled="busy" :aria-label="`${displayName(item)} 이름 수정`" @click="edit(item)"><AppIcon name="edit" /></button><button type="button" :disabled="busy" :aria-label="`${displayName(item)} 선택 목록에서 삭제`" @click="remove(item)"><AppIcon name="close" /></button></div></li></ul><form class="option-form" @submit.prevent="save"><label class="sr-only" :for="`option-${storeName}`">{{ optionLabels[storeName] }} {{ editId ? '수정할' : '추가할' }} 이름</label><input :id="`option-${storeName}`" v-model="name" required maxlength="100" :placeholder="`${optionLabels[storeName]} 이름`" :disabled="busy" /><button class="button secondary" :disabled="busy">{{ editId ? '수정' : '추가' }}</button><button v-if="editId" type="button" class="button text-button" @click="cancel">취소</button></form><p v-if="error" class="inline-error" role="alert">{{ error }}</p></details>
 </template>
