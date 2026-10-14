@@ -1,3 +1,5 @@
+import { matchesEntrySearch, parseEntrySearch } from './entrySearch.js'
+
 export function localDate(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
@@ -15,6 +17,16 @@ export function createEntry() {
 }
 
 export const clone = (value) => JSON.parse(JSON.stringify(value))
+export function countEntryDetails(entry) {
+  const values = [
+    entry.tea.amount, entry.brewing.tool, entry.brewing.material, entry.brewing.volume, entry.brewing.waterTemperature, entry.brewing.steepTime,
+    entry.context.location, entry.context.people, entry.context.reason,
+    entry.experience.body, entry.experience.aroma, entry.experience.taste, entry.experience.aftertaste, entry.experience.notes,
+    entry.photos.length ? true : null, entry.tags.length ? true : null, entry.favorite ? true : null,
+  ]
+  // Count entered optional fields, including 0, without treating automatic dates as missing work.
+  return values.filter((value) => value != null && (typeof value !== 'string' || value.trim() !== '')).length
+}
 export function normalizeEntry(value) {
   const entry = clone(value)
   if (entry.tea.amount === '') entry.tea.amount = null
@@ -44,10 +56,9 @@ export function summarize(entries, month = localDate().slice(0, 7)) {
 }
 
 export function filterEntries(entries, { search = '', category = '', rating = '', from = '', to = '', sort = 'newest', favoritesOnly = false } = {}) {
-  const query = search.trim().toLocaleLowerCase()
+  const terms = parseEntrySearch(search)
   return entries.filter((entry) => {
-    const haystack = [entry.tea.name, entry.experience.notes, entry.experience.feeling, ...entry.tags].join(' ').toLocaleLowerCase()
-    return (!favoritesOnly || entry.favorite === true) && (!query || haystack.includes(query)) && (!category || entry.tea.category === category) &&
+    return (!favoritesOnly || entry.favorite === true) && matchesEntrySearch(entry, terms) && (!category || entry.tea.category === category) &&
       (rating === '' || entry.experience.rating === Number(rating)) &&
       (!from || entry.context.date >= from) && (!to || entry.context.date <= to)
   }).sort((a, b) => {

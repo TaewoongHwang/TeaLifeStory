@@ -8,6 +8,7 @@ import { defaults, displayToolName } from '../../config/defaults.js'
 import TeawareRegister from './TeawareRegister.vue'
 import AppIcon from '../common/AppIcon.vue'
 const brewing = defineModel({ type: Object, required: true })
+const amount = defineModel('amount', { default: null })
 const settings = useSettingsStore()
 const registering = ref(false)
 const tools = computed(() => [...new Set([...settings.tools.map((item) => item.name), brewing.value.tool].filter(Boolean))])
@@ -22,6 +23,7 @@ function registered(name) { brewing.value.tool = name; registering.value = false
     <div class="teaware-actions"><button type="button" class="button secondary" @click="registering = true"><AppIcon name="plus" />내 차구 등록</button><small class="muted">나만의 차구 이름을 등록해 두고 골라 보세요.</small></div>
     <ChoiceButtons v-model="brewing.material" label="재질" :options="materials" />
     <div class="quick-input-grid">
+      <NumberQuickInput v-model="amount" label="차 사용량" :config="numericInputs.amount" />
       <NumberQuickInput v-model="brewing.volume" label="물 용량" :config="numericInputs.volume" />
       <NumberQuickInput v-model="brewing.waterTemperature" label="물 온도" hint="선택 사항 · 0~100°C" :config="numericInputs.waterTemperature" />
       <NumberQuickInput v-model="brewing.steepTime" label="우림 시간" hint="선택 사항 · 초 단위" :config="numericInputs.steepTime" />

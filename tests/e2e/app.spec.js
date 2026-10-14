@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { testBase } from '../../scripts/test-base.js'
 import { createEntry } from '../../src/utils/entry.js'
 import { nav } from './helpers/navigation.js'
-import { chooseOption } from './helpers/entry-form.js'
+import { chooseOption, openDetails } from './helpers/entry-form.js'
 
 async function start(page) {
   await page.goto('./')
@@ -14,8 +14,8 @@ async function create(page, name, { rating = 0, category = '', feeling = '', tag
   await page.getByLabel('차 이름 *').fill(name)
   if (category) await chooseOption(page, '차 종류', category)
   if (rating) await page.getByRole('button', { name: `${rating}점`, exact: true }).click()
-  if (feeling) await page.getByLabel('차를 마시면서 느낀 점').fill(feeling)
-  if (tags) await page.getByLabel('태그', { exact: true }).fill(tags)
+  if (feeling) await page.getByLabel('한 줄 감상').fill(feeling)
+  if (tags) { await openDetails(page); await page.getByLabel('태그', { exact: true }).fill(tags) }
   await page.getByRole('button', { name: '기록 저장', exact: true }).click()
   await expect(page.getByRole('heading', { name, exact: true })).toBeVisible()
 }
@@ -29,9 +29,10 @@ test('name-only CRUD, rating and photo survive refresh; search and stats reflect
   await expect(page.getByRole('heading', { name: '우전 녹차', exact: true })).toBeVisible()
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
   await chooseOption(page, '차 종류', '녹차')
+  await openDetails(page)
   await page.getByLabel('차 사용량', { exact: true }).fill('4')
   await page.getByRole('button', { name: '5점', exact: true }).click()
-  await page.getByLabel('차를 마시면서 느낀 점').fill('아침 공기가 차가워지면서 녹차 향이 더 선명하게 느껴졌다.')
+  await page.getByLabel('한 줄 감상').fill('아침 공기가 차가워지면서 녹차 향이 더 선명하게 느껴졌다.')
   await page.getByLabel('태그', { exact: true }).fill('아침, 산뜻함')
   await page.locator('input[type=file]').setInputFiles('public/icons/icon-192.png')
   await expect(page.locator('.photo-grid img')).toHaveCount(1)
@@ -40,9 +41,9 @@ test('name-only CRUD, rating and photo survive refresh; search and stats reflect
   await page.reload()
   await expect(page.locator('.detail-photos img')).toHaveCount(1)
   await page.getByRole('navigation').getByRole('link', { name: '기록', exact: true }).click()
-  await page.getByLabel('차 이름, 메모, 태그 검색').fill('아침')
+  await page.getByLabel('기록 검색', { exact: true }).fill('아침')
   await expect(page.locator('.tea-card')).toHaveCount(1)
-  await page.getByLabel('차 이름, 메모, 태그 검색').fill('없는 차')
+  await page.getByLabel('기록 검색', { exact: true }).fill('없는 차')
   await expect(page.locator('.tea-card')).toHaveCount(0)
   await nav(page, '통계')
   await expect(page.locator('.stat-card').nth(0)).toContainText('1 건')
@@ -63,6 +64,7 @@ test('draft resumes after refresh; new draft discards old; saving removes draft'
   await start(page)
   await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
   await page.getByLabel('차 이름 *').fill('작성 중인 차')
+  await openDetails(page)
   await page.getByLabel('차 사용량', { exact: true }).fill('3')
   await page.getByLabel('차 사용량', { exact: true }).fill('')
   await page.getByLabel('메모', { exact: true }).fill('초안이 유지되는지 확인')
@@ -195,12 +197,13 @@ test('story context, new brewing fields and favorites persist across page closur
   await start(page)
   await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
   await page.getByLabel('차 이름 *').fill('친구와 마신 청차')
+  await openDetails(page)
   await page.getByLabel('물 온도', { exact: true }).fill('85.5')
   await page.getByLabel('우림 시간', { exact: true }).fill('60')
   await page.getByLabel('장소 · Where').fill('햇살 드는 창가')
   await page.getByLabel('함께한 사람 · Who').fill('오랜 친구')
   await page.getByLabel('오늘 이 차를 마신 이유 · Why').fill('서로의 이야기를 천천히 듣고 싶어서')
-  await page.getByLabel('차를 마시면서 느낀 점').fill('대화가 이어지면서 한 잔의 차가 더 따뜻하게 느껴졌다.')
+  await page.getByLabel('한 줄 감상').fill('대화가 이어지면서 한 잔의 차가 더 따뜻하게 느껴졌다.')
   await page.getByRole('checkbox', { name: /즐겨찾기에 담기/ }).check()
   await page.getByRole('button', { name: '기록 저장', exact: true }).click()
   await expect(page.getByRole('heading', { name: '친구와 마신 청차' })).toBeVisible()
@@ -287,6 +290,7 @@ test('old IndexedDB record and draft remain readable and editable after additive
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
   await expect(page.getByLabel('물 온도', { exact: true })).toHaveValue('')
   await expect(page.getByLabel('우림 시간', { exact: true })).toHaveValue('')
+  await openDetails(page)
   await page.getByLabel('물 온도', { exact: true }).fill('90')
   await page.getByRole('button', { name: '수정 저장', exact: true }).click()
   await expect(page.locator('.detail-brew')).toContainText('90 °C')

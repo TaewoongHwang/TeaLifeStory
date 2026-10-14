@@ -7,9 +7,10 @@ import { listEntries, putEntry, removeEntry } from '../src/db/entries.js'
 import { importBackup, exportBackup, validateBackup, validateEntry } from '../src/db/backup.js'
 import { setSetting, getSetting } from '../src/db/settings.js'
 import { useEntryStore } from '../src/stores/entryStore.js'
+import { useSettingsStore } from '../src/stores/settingsStore.js'
 import { defaults } from '../src/config/defaults.js'
 import { normalizeBase } from '../src/config/base.js'
-import { createEntry, filterEntries, summarize, localDate, normalizeEntry } from '../src/utils/entry.js'
+import { createEntry, countEntryDetails, filterEntries, summarize, localDate, normalizeEntry } from '../src/utils/entry.js'
 
 function entry(name, date = '2026-10-04', rating = 0) {
   const value = createEntry()
@@ -244,4 +245,61 @@ test('favorite save failure keeps UI state and stored record intact', async () =
   await store.toggleFavorite(before.id)
   assert.equal(store.entries[0].favorite, !before.favorite)
   assert.equal((await listEntries())[0].favorite, !before.favorite)
+})
+
+test('detail summary counts optional zero, photos and tags without counting automatic dates or mutating entries', () => {
+  const value = createEntry()
+  assert.equal(countEntryDetails(value), 0)
+  value.tea.name = '간단 기록'
+  value.tea.category = '녹차'
+  value.experience.rating = 4
+  value.experience.feeling = '한 줄 감상'
+  assert.equal(countEntryDetails(value), 0)
+  value.tea.amount = 0
+  value.brewing.waterTemperature = 0
+  value.brewing.steepTime = 0
+  value.context.location = '  '
+  value.photos = [{ id: 'photo', name: 'cup.png', data: 'data:image/png;base64,AAAA' }]
+  value.tags = ['아침', '산뜻함']
+  value.favorite = true
+  const before = structuredClone(value)
+  assert.equal(countEntryDetails(value), 6)
+  assert.deepEqual(value, before)
+})
+
+test('entry display preference preserves v1 backups, serializes changes, and rejects invalid values before replacing data', async () => {
+  setActivePinia(createPinia())
+  const settings = useSettingsStore()
+  await settings.load()
+  assert.equal(settings.entryDetailsExpanded, false)
+  const old = await settings.exportData()
+  await Promise.all([settings.saveEntryDetailsExpanded(true), settings.saveEntryDetailsExpanded(false)])
+  assert.equal(await getSetting('entryDetailsExpanded'), false)
+  await settings.saveEntryDetailsExpanded(true)
+  const expanded = await settings.exportData()
+  await assert.rejects(settings.saveEntryDetailsExpanded('true'))
+  assert.deepEqual((await settings.exportData()).data, expanded.data)
+  assert.equal(expanded.version, 1)
+  assert.deepEqual(expanded.data.entries, old.data.entries)
+  await settings.importData(old, 'replace')
+  assert.equal(settings.entryDetailsExpanded, false)
+  await settings.importData(expanded, 'replace')
+  assert.equal(settings.entryDetailsExpanded, true)
+  for (const value of ['true', 1, null, {}]) {
+    const invalid = structuredClone(expanded)
+    invalid.data.settings.find((item) => item.key === 'entryDetailsExpanded').value = value
+    await assert.rejects(settings.importData(invalid, 'replace'))
+    assert.deepEqual((await settings.exportData()).data, expanded.data)
+  }
+  const original = IDBObjectStore.prototype.put
+  IDBObjectStore.prototype.put = function (...args) {
+    if (this.name === 'settings' && args[0].key === 'entryDetailsExpanded') throw new DOMException('Storage full', 'QuotaExceededError')
+    return original.apply(this, args)
+  }
+  try { await assert.rejects(settings.saveEntryDetailsExpanded(false)) }
+  finally { IDBObjectStore.prototype.put = original }
+  assert.equal(settings.entryDetailsExpanded, true)
+  assert.deepEqual((await settings.exportData()).data, expanded.data)
+  await settings.saveEntryDetailsExpanded(false)
+  assert.equal(settings.entryDetailsExpanded, false)
 })

@@ -54,6 +54,10 @@ export function validateBackup(input) {
         if (!isObject(item) || !text(item.name, 100) || !item.name.trim()) fail()
         return { id: item.id, name: item.name.trim() }
       }
+      if (item.key === 'entryDetailsExpanded') {
+        if (typeof item.value !== 'boolean') fail()
+        return { key: item.key, value: item.value }
+      }
       if (item.key !== 'draft') fail()
       return { key: 'draft', value: validateEntry(item.value, true) }
     })

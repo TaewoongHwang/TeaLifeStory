@@ -78,7 +78,7 @@ test('CSV downloads all saved stories in Korean without changing JSON backup, ph
 
   // A list filter must not limit the complete export from Settings.
   await page.getByRole('navigation').getByRole('link', { name: '기록', exact: true }).click()
-  await page.getByLabel('차 이름, 메모, 태그 검색').fill('새벽')
+  await page.getByLabel('기록 검색', { exact: true }).fill('새벽')
   await expect(page.locator('.tea-card')).toHaveCount(1)
   await page.getByRole('navigation').getByRole('link', { name: '설정', exact: true }).click()
   const { file, buffer } = await download(page, '차 기록 CSV 내보내기')

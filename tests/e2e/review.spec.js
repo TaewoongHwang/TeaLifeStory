@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { nav } from './helpers/navigation.js'
+import { openDetails } from './helpers/entry-form.js'
 
 async function start(page) {
   await page.goto(process.env.AUDIT_DEV_URL || './')
@@ -17,6 +18,7 @@ test('tag draft survives reload without blur; typing commas and Enter save prese
   await start(page)
   await nav(page, '새 기록')
   await page.getByLabel('차 이름 *').fill('태그 초안 검수')
+  await openDetails(page)
   const tags = page.getByLabel('태그', { exact: true })
   await tags.fill('새벽, ')
   await expect(tags).toHaveValue('새벽, ')
@@ -33,7 +35,7 @@ test('tag draft survives reload without blur; typing commas and Enter save prese
   await page.reload()
   await expect(page.locator('.detail-paper .tag-row span')).toHaveCount(3)
   await nav(page, '기록')
-  await page.getByLabel('차 이름, 메모, 태그 검색').fill('편안함')
+  await page.getByLabel('기록 검색', { exact: true }).fill('편안함')
   await expect(page.locator('.tea-card')).toHaveCount(1)
   await page.locator('.tea-card').click()
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
@@ -50,6 +52,7 @@ test('empty month does not count every record; missing rating and period filters
   await create(page, '지난달 평점', 3)
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
   const date = await page.getByLabel('날짜 · When').inputValue()
+  await openDetails(page)
   const [year, month] = date.split('-').map(Number)
   const previous = `${month === 1 ? year - 1 : year}-${String(month === 1 ? 12 : month - 1).padStart(2, '0')}-01`
   await page.getByLabel('날짜 · When').fill(previous)
@@ -81,6 +84,7 @@ test('a draft left after cleanup failure cannot overwrite an already edited save
   await start(page)
   await nav(page, '새 기록')
   await page.getByLabel('차 이름 *').fill('초안 정리 실패 검수')
+  await openDetails(page)
   await page.getByLabel('메모', { exact: true }).fill('처음 메모')
   await expect(page.getByText('초안 저장됨', { exact: true })).toBeVisible()
   await page.evaluate(() => {

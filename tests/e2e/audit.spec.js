@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { nav } from './helpers/navigation.js'
+import { openDetails } from './helpers/entry-form.js'
 
 function diagnostics(page) {
   const issues = []
@@ -54,6 +55,7 @@ test('functional audit: rated CRUD, reload, deletion, search, exact stats and JS
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
   await page.getByLabel('차 이름 *').fill('수정한 검수 녹차')
   await page.getByRole('button', { name: '5점', exact: true }).click()
+  await openDetails(page)
   await page.getByLabel('물 온도', { exact: true }).fill('90')
   await page.getByLabel('메모', { exact: true }).fill('수정 후 새로고침 검수')
   await page.getByRole('button', { name: '수정 저장', exact: true }).click()
@@ -73,9 +75,9 @@ test('functional audit: rated CRUD, reload, deletion, search, exact stats and JS
   await remove(page)
   await page.reload()
   await expect(page.locator('.tea-card')).toHaveCount(2)
-  await page.getByLabel('차 이름, 메모, 태그 검색').fill('녹차')
+  await page.getByLabel('기록 검색', { exact: true }).fill('녹차')
   await expect(page.locator('.tea-card')).toHaveCount(0)
-  await page.getByLabel('차 이름, 메모, 태그 검색').fill('홍차')
+  await page.getByLabel('기록 검색', { exact: true }).fill('홍차')
   await expect(page.locator('.tea-card')).toHaveCount(1)
   await nav(page, '통계')
   await expect(page.locator('.stat-card').nth(0)).toContainText('2 건')
@@ -113,6 +115,7 @@ test('mobile audit: last inputs, save button and navigation remain reachable wit
     expect(nameLayout.bottom).toBeLessThanOrEqual(nameLayout.saveTop)
     expect(nameLayout.visible).toBe(true)
     const favorite = page.getByRole('checkbox', { name: /즐겨찾기에 담기/ })
+    await openDetails(page)
     await favorite.scrollIntoViewIfNeeded()
     const layout = await page.evaluate(() => {
       const nav = document.querySelector('.bottom-nav').getBoundingClientRect()
@@ -142,6 +145,7 @@ test('unfinished numeric draft does not make the exported backup impossible to r
   await create(page, '보존할 차', 4)
   await nav(page, '새 기록')
   await page.getByLabel('차 이름 *').fill('아직 작성 중')
+  await openDetails(page)
   await page.getByLabel('차 사용량', { exact: true }).fill('-1')
   await page.getByLabel('물 온도', { exact: true }).fill('120')
   await expect(page.getByText('초안 저장됨', { exact: true })).toBeVisible()

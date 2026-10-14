@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { createEntry } from '../../src/utils/entry.js'
 import { nav } from './helpers/navigation.js'
-import { chooseOption } from './helpers/entry-form.js'
+import { chooseOption, openDetails } from './helpers/entry-form.js'
 
 const numericLabels = ['차 사용량', '물 용량', '물 온도', '우림 시간']
 function diagnostics(page) {
@@ -21,6 +21,7 @@ async function backup(page) {
 async function start(page) {
   await page.goto('./#/entries/new')
   await expect(page.getByLabel('차 이름 *')).toBeVisible()
+  await openDetails(page)
 }
 
 test('choice and numeric shortcuts preserve drafts, precise direct inputs and edited records without requiring optional values', async ({ page }) => {
@@ -155,6 +156,7 @@ test('historical and long custom choices stay usable on mobile with keyboard, to
   expect(saved.brewing.material).toBe(legacy.brewing.material)
   await nav(page, '새 기록')
   for (const width of [360, 390, 430]) {
+    await openDetails(page)
     await page.setViewportSize({ width, height: 640 })
     await page.getByLabel('차 이름 *').scrollIntoViewIfNeeded()
     const firstInput = await page.getByLabel('차 이름 *').evaluate((input) => ({ bottom: input.getBoundingClientRect().bottom, saveTop: document.querySelector('.save-bar').getBoundingClientRect().top }))
@@ -186,7 +188,7 @@ test('historical and long custom choices stay usable on mobile with keyboard, to
     expect(layout.bottom).toBeLessThanOrEqual(layout.saveTop)
     await page.screenshot({ path: `test-results/quick-entry-values-${width}.png` })
     await page.locator('.form-section').first().screenshot({ path: `test-results/quick-entry-basic-${width}.png` })
-    await page.locator('.form-section').nth(1).screenshot({ path: `test-results/quick-entry-brewing-${width}.png` })
+    await page.locator('#entry-details .form-section').first().screenshot({ path: `test-results/quick-entry-brewing-${width}.png` })
   }
   expect(issues).toEqual([])
 })

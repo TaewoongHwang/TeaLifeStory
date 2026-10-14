@@ -5,15 +5,28 @@ import { normalizeEntry } from '../utils/entry.js'
 
 // Serialize draft operations, so a pending autosave cannot recreate a discarded draft.
 let draftQueue = Promise.resolve()
+let preferenceQueue = Promise.resolve()
 function queueDraft(operation) {
   draftQueue = draftQueue.catch(() => {}).then(operation)
   return draftQueue
 }
 
 export const useSettingsStore = defineStore('settings', {
-  state: () => ({ categories: [], tools: [], materials: [] }),
+  state: () => ({ categories: [], tools: [], materials: [], entryDetailsExpanded: false }),
   actions: {
-    async load() { Object.assign(this, await listOptions()) },
+    async load() {
+      const [options, expanded] = await Promise.all([listOptions(), getSetting('entryDetailsExpanded')])
+      Object.assign(this, options)
+      this.entryDetailsExpanded = expanded === true
+    },
+    saveEntryDetailsExpanded(expanded) {
+      preferenceQueue = preferenceQueue.catch(() => {}).then(async () => {
+        if (typeof expanded !== 'boolean') throw new Error('작성 방식은 펼침 또는 접힘으로 선택해 주세요.')
+        await setSetting('entryDetailsExpanded', expanded)
+        this.entryDetailsExpanded = expanded
+      })
+      return preferenceQueue
+    },
     async saveOption(store, name, id = crypto.randomUUID()) {
       const trimmed = name.trim()
       if (!trimmed || trimmed.length > 100) throw new Error('이름을 1~100자로 입력해 주세요.')
@@ -28,9 +41,9 @@ export const useSettingsStore = defineStore('settings', {
       return queueDraft(() => setSetting('draft', snapshot))
     },
     clearDraft() { return queueDraft(() => deleteSetting('draft')) },
-    async exportData() { await draftQueue.catch(() => {}); return exportBackup() },
+    async exportData() { await Promise.all([draftQueue.catch(() => {}), preferenceQueue.catch(() => {})]); return exportBackup() },
     async importData(data, mode) {
-      await draftQueue.catch(() => {})
+      await Promise.all([draftQueue.catch(() => {}), preferenceQueue.catch(() => {})])
       await importBackup(data, mode)
       await this.load()
     },

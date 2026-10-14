@@ -1,11 +1,12 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { useEntryStore } from '../stores/entryStore.js'
 import { useSettingsStore } from '../stores/settingsStore.js'
 import { useAppStore } from '../stores/appStore.js'
-import { clone, createEntry, normalizeEntry } from '../utils/entry.js'
+import { clone, countEntryDetails, createEntry, localDate, normalizeEntry } from '../utils/entry.js'
 import TeaBasicForm from '../components/tea/TeaBasicForm.vue'
+import TeaQuickExperience from '../components/tea/TeaQuickExperience.vue'
 import BrewingForm from '../components/tea/BrewingForm.vue'
 import TeaContextForm from '../components/tea/TeaContextForm.vue'
 import TeaExperienceForm from '../components/tea/TeaExperienceForm.vue'
@@ -29,9 +30,34 @@ const saving = ref(false)
 const processing = ref(false)
 const draftStatus = ref('')
 const error = ref('')
+const formElement = ref(null)
+const detailsPanel = ref(null)
+const detailsCount = computed(() => countEntryDetails(entry.value))
+const detailsExpanded = ref(settings.entryDetailsExpanded || editing && detailsCount.value > 0)
+const remembering = ref(false)
+const preferenceError = ref('')
+const recordedDate = computed(() => entry.value.context.date === localDate() ? '오늘' : entry.value.context.date || '날짜 미입력')
 let timer
 let saved = false
 let dirty = false
+let preferenceSave = Promise.resolve()
+
+async function setDetailsExpanded(expanded) {
+  detailsExpanded.value = expanded
+  remembering.value = true
+  preferenceError.value = ''
+  preferenceSave = settings.saveEntryDetailsExpanded(expanded)
+  try { await preferenceSave }
+  catch { preferenceError.value = '작성 방식을 기억하지 못했습니다. 이번 기록의 입력 내용은 유지됩니다.' }
+  finally { remembering.value = false }
+}
+async function editDate() {
+  void setDetailsExpanded(true)
+  await nextTick()
+  const input = detailsPanel.value.querySelector('input[type=date]')
+  input.focus()
+  input.scrollIntoView({ block: 'center' })
+}
 
 async function flushDraft() {
   clearTimeout(timer)
@@ -73,6 +99,14 @@ async function chooseDraft(resume) {
 
 async function save() {
   if (saving.value || processing.value) return
+  const invalid = [...formElement.value.elements].find((field) => field.willValidate && !field.validity.valid)
+  if (invalid) {
+    if (detailsPanel.value.contains(invalid)) detailsExpanded.value = true
+    await nextTick()
+    invalid.focus()
+    invalid.reportValidity()
+    return
+  }
   saving.value = true
   error.value = ''
   clearTimeout(timer)
@@ -104,13 +138,20 @@ onBeforeRouteLeave(async () => {
   if (processing.value || saving.value && !saved) return false
   if (editing && !saved && JSON.stringify(entry.value) !== initial) return window.confirm('수정한 내용을 저장하지 않고 나갈까요?')
   await flushDraft()
+  await preferenceSave.catch(() => {})
 })
 onUnmounted(() => { clearTimeout(timer); document.removeEventListener('visibilitychange', hide); window.removeEventListener('beforeunload', beforeUnload); window.removeEventListener('pagehide', flushDraft) })
 </script>
 <template>
   <div class="entry-form-view"><RouterLink :to="editing ? `/entries/${route.params.id}` : '/'" class="back-link"><AppIcon name="back" />{{ editing ? '기록으로' : '일기장으로' }}</RouterLink><div class="page-eyebrow">A MOMENT TO REMEMBER / 茶</div><div class="page-title"><h1>{{ editing ? '차 이야기를 다시 펼쳐요' : '오늘의 한 잔을 남겨요' }}</h1><p>차 이름만 적어도 좋아요.<span class="form-intro-detail"><br />향과 마음, 그날의 순간은 천천히.</span></p></div>
     <EmptyState v-if="editing && !existing" title="기록을 찾을 수 없어요" description="삭제되었거나 이 기기에 없는 기록입니다." :action="false" />
-    <form v-else-if="ready" @submit.prevent="save"><div class="form-status"><span>* 필수 입력</span><span role="status">{{ draftStatus }}</span></div><fieldset :disabled="saving" class="form-fields"><TeaBasicForm v-model="entry.tea" /><BrewingForm v-model="entry.brewing" /><TeaContextForm v-model="entry.context" /><TeaExperienceForm v-model="entry.experience" /><TeaExtrasForm v-model="entry" @busy="processing = $event" /></fieldset><p v-if="error" class="inline-error" role="alert">{{ error }}</p><div class="save-bar"><button type="submit" class="button primary" :disabled="saving || processing"><AppIcon name="book" />{{ saving ? '저장 중…' : editing ? '수정 저장' : '기록 저장' }}</button></div></form>
+    <form v-else-if="ready" ref="formElement" novalidate @submit.prevent="save"><div class="form-status"><span>* 필수 입력</span><span role="status">{{ draftStatus }}</span></div><fieldset :disabled="saving" class="form-fields">
+      <TeaBasicForm v-model="entry.tea" />
+      <TeaQuickExperience v-model="entry.experience" :expanded="detailsExpanded" />
+      <div class="entry-detail-control"><button type="button" class="button secondary entry-details-toggle" :aria-expanded="detailsExpanded" aria-controls="entry-details" :disabled="remembering || processing" @click="setDetailsExpanded(!detailsExpanded)"><AppIcon :name="detailsExpanded ? 'close' : 'plus'" />{{ detailsExpanded ? '세부 항목 접기' : '자세히 남기기' }}</button><p v-if="!detailsExpanded && detailsCount" class="muted small" role="status">세부 항목 {{ detailsCount }}개도 함께 저장돼요.</p><p v-if="preferenceError" class="inline-error" role="alert">{{ preferenceError }}</p></div>
+      <div id="entry-details" ref="detailsPanel" v-show="detailsExpanded" role="region" aria-label="세부 기록"><BrewingForm v-model="entry.brewing" v-model:amount="entry.tea.amount" /><TeaContextForm v-model="entry.context" /><TeaExperienceForm v-model="entry.experience" /><TeaExtrasForm v-model="entry" @busy="processing = $event" /></div>
+      <div class="entry-date-summary"><span>마신 날짜 · {{ recordedDate }} {{ entry.context.time }}</span><button type="button" class="button text-button" :disabled="remembering || processing" @click="editDate">날짜·시간 수정</button></div>
+    </fieldset><p v-if="error" class="inline-error" role="alert">{{ error }}</p><div class="save-bar"><button type="submit" class="button primary" :disabled="saving || processing"><AppIcon name="book" />{{ saving ? '저장 중…' : editing ? '수정 저장' : '기록 저장' }}</button></div></form>
     <p v-else-if="!pendingDraft" role="status">{{ error || '초안을 확인하고 있어요…' }}</p>
     <BaseModal v-if="pendingDraft" title="쓰다 남겨 둔 이야기가 있어요" @close="router.push('/')"><p>지난번에 적던 차 이야기를 이어 써 볼까요?</p><p class="draft-name">{{ pendingDraft.tea.name || '이름을 아직 적지 않은 차' }}</p><p v-if="error" class="inline-error" role="alert">{{ error }}</p><div class="modal-actions"><button class="button secondary" @click="chooseDraft(false)">새로 작성</button><button class="button primary" @click="chooseDraft(true)">이어쓰기</button></div><p class="muted small">새로 작성하면 기존 초안이 삭제됩니다.</p></BaseModal>
   </div>

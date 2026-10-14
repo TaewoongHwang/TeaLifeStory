@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { createEntry } from '../../src/utils/entry.js'
 import { nav } from './helpers/navigation.js'
-import { chooseOption } from './helpers/entry-form.js'
+import { chooseOption, openDetails } from './helpers/entry-form.js'
 
 const core = ['녹차', '홍차', '황차', '백차', '흑차']
 function diagnostics(page) {
@@ -24,6 +24,7 @@ async function restore(page, fixture, mode = 'replace') {
   await expect(page.getByRole('dialog')).toHaveCount(0)
 }
 async function register(page, name) {
+  await openDetails(page)
   await page.getByRole('button', { name: '내 차구 등록', exact: true }).click()
   await page.getByLabel('차구 이름 *', { exact: true }).fill(name)
   await page.getByLabel('차구 이름 *', { exact: true }).press('Enter')
@@ -134,6 +135,7 @@ test('named teaware registers without saving the diary, persists in drafts and e
   const first = '주니 자사호 120cc', second = '단니 자사호 180cc'
   await page.goto('./#/entries/new')
   await page.getByLabel('차 이름 *').fill('주니로 마신 차')
+  await openDetails(page)
   await page.getByLabel('물 용량', { exact: true }).fill('175')
   await register(page, first)
   await expect(page.getByLabel('물 용량', { exact: true })).toHaveValue('175')
