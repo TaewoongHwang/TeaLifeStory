@@ -164,6 +164,17 @@ small {
 main {
   padding: 30px 28px 120px;
 }
+.app-copyright {
+  margin-top: 28px;
+  padding-bottom: env(safe-area-inset-bottom);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  text-align: center;
+}
+.entry-form-view + .app-copyright {
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
 .page-eyebrow {
   font-size: 9px;
   letter-spacing: 2.6px;
