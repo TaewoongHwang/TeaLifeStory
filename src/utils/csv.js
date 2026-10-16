@@ -1,4 +1,5 @@
 import { entryDate } from './entry.js'
+import { isMeal } from './record.js'
 
 const columns = [
   ['기록 ID', (entry) => entry.id],
@@ -43,7 +44,17 @@ function cell(value) {
 export function entriesToCsv(entries) {
   const rows = [columns.map(([label]) => label)]
   const date = (entry) => entry.context.date ? entryDate(entry) : ''
-  const sorted = [...entries].sort((a, b) => date(b).localeCompare(date(a)))
+  const sorted = entries.filter((entry) => !isMeal(entry)).sort((a, b) => date(b).localeCompare(date(a)))
   for (const entry of sorted) rows.push(columns.map(([, read]) => read(entry)))
+  return `\uFEFF${rows.map((row) => row.map(cell).join(',')).join('\r\n')}\r\n`
+}
+export function mealsToCsv(entries) {
+  const labels = ['기록 ID', '한 끼 이름', '식사 구분', '끼니', '식사 날짜', '식사 시간', '음식점', '먹은 양', '매운 정도', '식전 상태', '함께 마신 것', '재료·구매 정보', '맛 평점', '감상', '식후 느낌', '메모', '태그', '다시 먹고 싶음', '사진 수']
+  const rows = [labels]
+  for (const entry of entries.filter(isMeal).sort((a, b) => entryDate(b).localeCompare(entryDate(a)))) {
+    rows.push([entry.id, entry.meal.name, entry.meal.source, entry.meal.occasion, entry.context.date, entry.context.time, entry.meal.venue, entry.meal.portion, entry.meal.spice, entry.meal.before, entry.meal.drink,
+      entry.meal.ingredients.map((food) => [food.name, food.group, food.preparation, food.purchase ? [food.purchase.product, food.purchase.shop, food.purchase.date, food.purchase.notes].filter(Boolean).join(' / ') : ''].filter(Boolean).join(' · ')).join('\n'),
+      entry.experience.rating || '', entry.experience.feeling, entry.observations.map((item) => `${item.date} ${item.time} · ${item.feelings.join(', ')}${item.notes ? ` · ${item.notes}` : ''}`).join('\n'), entry.experience.notes, entry.tags.join('; '), entry.favorite ? '예' : '아니오', entry.photos.length])
+  }
   return `\uFEFF${rows.map((row) => row.map(cell).join(',')).join('\r\n')}\r\n`
 }

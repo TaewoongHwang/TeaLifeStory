@@ -14,6 +14,8 @@ import TeaExtrasForm from '../components/tea/TeaExtrasForm.vue'
 import BaseModal from '../components/common/BaseModal.vue'
 import AppIcon from '../components/common/AppIcon.vue'
 import EmptyState from '../components/common/EmptyState.vue'
+import RecordKindSwitch from '../components/common/RecordKindSwitch.vue'
+import { isMeal } from '../utils/record.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -21,7 +23,7 @@ const store = useEntryStore()
 const settings = useSettingsStore()
 const app = useAppStore()
 const editing = Boolean(route.params.id)
-const existing = editing ? store.entries.find((item) => item.id === route.params.id) : null
+const existing = editing ? store.entries.find((item) => item.id === route.params.id && !isMeal(item)) : null
 const entry = ref(existing ? clone(existing) : createEntry())
 const initial = JSON.stringify(entry.value)
 const pendingDraft = ref(null)
@@ -144,6 +146,7 @@ onUnmounted(() => { clearTimeout(timer); document.removeEventListener('visibilit
 </script>
 <template>
   <div class="entry-form-view"><RouterLink :to="editing ? `/entries/${route.params.id}` : '/'" class="back-link"><AppIcon name="back" />{{ editing ? '기록으로' : '일기장으로' }}</RouterLink><div class="page-eyebrow">A MOMENT TO REMEMBER / 茶</div><div class="page-title"><h1>{{ editing ? '차 이야기를 다시 펼쳐요' : '오늘의 한 잔을 남겨요' }}</h1><p>차 이름만 적어도 좋아요.<span class="form-intro-detail"><br />향과 마음, 그날의 순간은 천천히.</span></p></div>
+    <RecordKindSwitch v-if="!editing" />
     <EmptyState v-if="editing && !existing" title="기록을 찾을 수 없어요" description="삭제되었거나 이 기기에 없는 기록입니다." :action="false" />
     <form v-else-if="ready" ref="formElement" novalidate @submit.prevent="save"><div class="form-status"><span>* 필수 입력</span><span role="status">{{ draftStatus }}</span></div><fieldset :disabled="saving" class="form-fields">
       <TeaBasicForm v-model="entry.tea" />

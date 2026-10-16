@@ -19,7 +19,7 @@ function diagnostics(page) {
 
 async function start(page) {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '오늘은 어떤 차를 마셨나요?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
 }
 
 async function loadedImage(image) {
@@ -40,8 +40,8 @@ test('차곡차곡 branding, generated hero and native icons use the deployment 
   const issues = diagnostics(page)
   await start(page)
   const base = new URL(page.url()).pathname
-  await expect(page).toHaveTitle('차곡차곡 · 나의 차 일기')
-  await expect(page.locator('.brand')).toHaveText(/차곡차곡\s*나의 차 일기/)
+  await expect(page).toHaveTitle('차곡차곡 · 차와 밥의 일기')
+  await expect(page.locator('.brand')).toHaveText(/차곡차곡\s*차와 밥으로 채운 하루/)
   await expect(page.locator('body')).not.toContainText(/Tea Life Story/i)
   const brandImage = page.locator('.brand-mark-image')
   await expect(brandImage).toHaveAttribute('alt', '')
@@ -109,7 +109,7 @@ test('generated home artwork and new brand preserve mobile diary entry and botto
     for (const width of [360, 390, 430]) {
       await page.setViewportSize({ width, height })
       await loadedImage(page.locator('img.tea-illustration'))
-      const layout = await page.locator('.new-entry-button').evaluate((button) => {
+      const layout = await page.locator('.new-entry-button.primary').evaluate((button) => {
         const rect = button.getBoundingClientRect()
         const target = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)
         return {
@@ -127,7 +127,7 @@ test('generated home artwork and new brand preserve mobile diary entry and botto
         return rect.left >= 0 && rect.right <= innerWidth && rect.height >= 44 && (link === target || link.contains(target))
       }))
       expect(linksAccessible).toBe(true)
-      await page.locator('.new-entry-button').click()
+      await page.locator('.new-entry-button.primary').click()
       await expect(page).toHaveURL(/#\/entries\/new$/)
       const inputLayout = await page.getByLabel('차 이름 *').evaluate((input) => {
         const rect = input.getBoundingClientRect()
@@ -168,7 +168,7 @@ test('existing tea-life-story database and v1 JSON remain compatible; generated 
   // Seed the pre-branding DB directly in an isolated browser, then open the renamed app.
   await page.evaluate(async (data) => {
     await new Promise((resolve, reject) => {
-      const request = indexedDB.open('tea-life-story', 1)
+      const request = indexedDB.open('tea-life-story')
       request.onupgradeneeded = () => {
         for (const store of Object.keys(data)) request.result.createObjectStore(store, { keyPath: store === 'settings' ? 'key' : 'id' })
       }
@@ -192,8 +192,8 @@ test('existing tea-life-story database and v1 JSON remain compatible; generated 
   await nav(page, '설정')
   const original = await backup(page)
   expect(original.app).toBe('tea-life-story')
-  expect(original.version).toBe(1)
-  expect(original.data).toEqual(data)
+  expect(original.version).toBe(2)
+  expect(original.data).toEqual({ ...data, purchases: [] })
 
   const restoredContext = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'ko-KR', timezoneId: 'Asia/Seoul' })
   try {
@@ -201,15 +201,15 @@ test('existing tea-life-story database and v1 JSON remain compatible; generated 
     const restoredIssues = diagnostics(restoredPage)
     await restoredPage.goto(new URL('./#/settings', page.url()).href)
     await expect(restoredPage.getByRole('heading', { name: '나의 일기장 설정', exact: true })).toBeVisible()
-    await restoredPage.locator('#backup-file').setInputFiles({ name: 'tea-life-story-old-backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(original)) })
+    await restoredPage.locator('#backup-file').setInputFiles({ name: 'tea-life-story-old-backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ app: 'tea-life-story', version: 1, data })) })
     await restoredPage.getByRole('dialog').getByRole('radio', { name: /^전체 교체/ }).check()
     await restoredPage.getByRole('button', { name: '전체 교체하기', exact: true }).click()
     await expect(restoredPage.getByRole('dialog')).toHaveCount(0)
     await restoredPage.reload()
     const restored = await backup(restoredPage)
     expect(restored.app).toBe('tea-life-story')
-    expect(restored.version).toBe(1)
-    expect(restored.data).toEqual(data)
+    expect(restored.version).toBe(2)
+    expect(restored.data).toEqual({ ...data, purchases: [] })
     await nav(restoredPage, '새 기록')
     await restoredPage.getByRole('button', { name: '이어쓰기', exact: true }).click()
     await expect(restoredPage.getByLabel('차 이름 *')).toHaveValue(draft.tea.name)
@@ -223,7 +223,7 @@ test('existing tea-life-story database and v1 JSON remain compatible; generated 
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
   await context.setOffline(true)
   await page.reload()
-  await expect(page).toHaveTitle('차곡차곡 · 나의 차 일기')
+  await expect(page).toHaveTitle('차곡차곡 · 차와 밥의 일기')
   await expect(page.getByText(/오프라인 ·/)).toBeVisible()
   await loadedImage(page.locator('img.tea-illustration'))
   await loadedImage(page.locator('.brand-mark-image'))
@@ -235,6 +235,6 @@ test('existing tea-life-story database and v1 JSON remain compatible; generated 
   await expect(page.getByRole('heading', { name: entry.tea.name, exact: true })).toBeVisible()
   await expect(page.locator('.detail-photos img')).toHaveCount(1)
   await nav(page, '설정')
-  expect((await backup(page)).data).toEqual(data)
+  expect((await backup(page)).data).toEqual({ ...data, purchases: [] })
   expect(issues).toEqual([])
 })

@@ -19,7 +19,7 @@ export default defineConfig({
         id: base,
         name: '차곡차곡',
         short_name: '차곡차곡',
-        description: '차 한 잔에 담긴 향과 마음을 차곡차곡 쌓아요.',
+        description: '차 한 잔과 밥 한 끼의 이야기를 차곡차곡 쌓아요.',
         lang: 'ko',
         start_url: base,
         scope: base,

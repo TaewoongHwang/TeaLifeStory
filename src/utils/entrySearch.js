@@ -1,4 +1,5 @@
 import { displayToolName } from '../config/defaults.js'
+import { isMeal } from './record.js'
 
 const normalize = (value) => value.normalize('NFKC').toLocaleLowerCase('ko-KR').replace(/\s+/g, ' ').trim()
 
@@ -15,6 +16,17 @@ export function parseEntrySearch(search) {
 }
 
 function searchableFields(entry) {
+  if (isMeal(entry)) {
+    return [
+      { label: '한 끼', value: entry.meal.name }, { label: '식사 구분', value: [entry.meal.source, entry.meal.occasion].join(' ') },
+      { label: '음식점', value: entry.meal.venue }, { label: '감상', value: entry.experience.feeling }, { label: '메모', value: entry.experience.notes },
+      ...entry.meal.ingredients.map((food) => ({ label: '재료·구매처', value: [food.name, food.group, food.preparation, food.purchase?.product, food.purchase?.shop, food.purchase?.notes].filter(Boolean).join(' ') })),
+      ...entry.observations.map((item) => ({ label: '식후 느낌', value: [item.date, item.time, ...item.feelings, item.notes].join(' ') })),
+      { label: '먹은 방식', value: [entry.meal.portion, entry.meal.spice, entry.meal.before, entry.meal.drink].join(' ') },
+      { label: '장소·사람', value: [entry.context.location, entry.context.people, entry.context.reason].join(' ') },
+      { label: '태그', value: entry.tags.map((tag) => `#${tag}`).join(' ') },
+    ].filter((field) => field.value.trim()).map((field) => ({ ...field, text: normalize(field.value), alias: '' }))
+  }
   const fields = [
     { label: '차 이름', value: entry.tea.name },
     { label: '차 종류', value: entry.tea.category, alias: entry.tea.category === '블렌딩차' ? '블렌딩티' : '' },

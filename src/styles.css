@@ -2058,6 +2058,53 @@ input::-webkit-inner-spin-button {
     width: min(100%,128px);
   }
 }
+.record-kind-switch,.record-filter { display: flex; gap: 8px; margin: 0 0 20px; }
+.record-kind-switch a,.record-filter button { flex: 1; min-height: 44px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; text-align: center; background: var(--paper); color: var(--ink); font-size: 14px; }
+.record-kind-switch a[aria-current=page],.record-filter button[aria-pressed=true] { background: var(--tea); color: white; font-weight: 700; }
+.home-record-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.home-record-actions .new-entry-button { margin: 0; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 16px 10px; }
+.home-record-actions .new-entry-button span { width: 100%; text-align: center; margin: 0; font-size: 11px; }
+.home-record-actions .secondary span { color: var(--muted); }
+.meal-status { display: inline-block; margin-top: 12px; padding: 5px 9px; border-radius: 6px; background: #eee9df; font-size: 12px; color: #5f584d; }
+.meal-status[data-status=comfortable] { background: #e6ecdf; color: #3c5435; }
+.meal-status[data-status=discomfort] { background: #f2e5db; color: #7c472c; }
+.choice-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.choice-button { min-height: 44px; max-width: 100%; min-width: 0; overflow-wrap: anywhere; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: #fffdf8; color: var(--ink); }
+.choice-button[aria-pressed=true] { border-color: #8d4d32; background: #f1e2d5; color: #713d28; font-weight: 700; }
+.meal-ingredient-choices,.ingredient-catalog { margin: 20px 0; }
+.meal-ingredient-choices>summary,.ingredient-catalog>summary { padding: 12px 0; min-height: 44px; cursor: pointer; font-weight: 600; }
+.inline-add { display: flex; gap: 8px; }
+.inline-add input { min-width: 0; flex: 1; }
+.inline-add .button { flex-shrink: 0; padding: 10px; }
+.meal-ingredient { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 18px; }
+.meal-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.meal-item-heading strong { min-width: 0; overflow-wrap: anywhere; }
+.meal-ingredient .choice-field legend { max-width: 100%; overflow-wrap: anywhere; }
+.purchase-search { display: block; margin-top: 24px; }
+.purchase-snapshot { padding: 12px; margin: 12px 0; background: #f2eee5; border-radius: 8px; font-size: 13px; overflow-wrap: anywhere; }
+.purchase-snapshot p { margin: 6px 0; }
+.purchase-options { display: grid; gap: 10px; margin: 18px 0; }
+.purchase-option { min-height: 64px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fffdf8; text-align: left; }
+.purchase-option strong,.purchase-option span { display: block; overflow-wrap: anywhere; }
+.purchase-option span { margin-top: 5px; font-size: 13px; color: var(--muted); }
+.plain-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.meal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.purchase-card { overflow-wrap: anywhere; }
+.ingredient-summary,.observation-list { list-style: none; padding: 0; }
+.ingredient-summary>li,.observation-list>li { padding: 14px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.ingredient-summary>li>span { display: block; color: var(--muted); font-size: 13px; margin: 6px 0; }
+.observation-list time { display: block; color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+.observation-list strong { display: block; }
+.observation-list .detail-actions { margin-top: 8px; }
+.meal-counts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 20px 0; }
+.meal-counts dt { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.meal-counts dd { margin: 8px 0 0; font-size: 22px; font-weight: 700; }
+#meal-details>.form-section:first-child { margin-top: 20px; }
+@media(max-width:599px) and (max-height:740px) {
+  .home-hero .tea-illustration { width: min(100%,170px); }
+  .entry-form-view .record-kind-switch { margin-bottom: 8px; }
+  .entry-form-view .record-kind-switch a { padding: 8px; }
+}
 @media(prefers-reduced-motion:reduce) {
   * {
     transition: none!important;

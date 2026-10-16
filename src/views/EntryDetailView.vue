@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useEntryStore } from '../stores/entryStore.js'
 import { useAppStore } from '../stores/appStore.js'
 import { formatDate } from '../utils/entry.js'
+import { isMeal } from '../utils/record.js'
 import { displayToolName } from '../config/defaults.js'
 import TeaRating from '../components/tea/TeaRating.vue'
 import AppIcon from '../components/common/AppIcon.vue'
@@ -13,7 +14,7 @@ const route = useRoute()
 const router = useRouter()
 const store = useEntryStore()
 const app = useAppStore()
-const entry = computed(() => store.entries.find((item) => item.id === route.params.id))
+const entry = computed(() => store.entries.find((item) => item.id === route.params.id && !isMeal(item)))
 const deleting = ref(false)
 const busy = ref(false)
 const error = ref('')

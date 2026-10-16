@@ -7,7 +7,7 @@ import { chooseOption, openDetails } from './helpers/entry-form.js'
 
 async function start(page) {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '오늘은 어떤 차를 마셨나요?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
 }
 async function create(page, name, { rating = 0, category = '', feeling = '', tags = '' } = {}) {
   await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()
@@ -271,7 +271,7 @@ test('old IndexedDB record and draft remain readable and editable after additive
   draft.tea.name = '예전 초안'
   await page.evaluate(async ({ legacy, draft }) => {
     await new Promise((resolve, reject) => {
-      const request = indexedDB.open('tea-life-story', 1)
+      const request = indexedDB.open('tea-life-story')
       request.onerror = () => reject(request.error)
       request.onsuccess = () => {
         const db = request.result

@@ -17,7 +17,7 @@ export async function removeOption(store, id) {
 }
 export async function getSetting(key) {
   const item = await (await getDB()).get('settings', key)
-  return key === 'draft' && item ? normalizeEntry(item.value) : item?.value
+  return ['draft', 'mealDraft'].includes(key) && item ? normalizeEntry(item.value) : item?.value
 }
 export async function setSetting(key, value) { return (await getDB()).put('settings', { key, value: clone(value) }) }
 export async function deleteSetting(key) { return (await getDB()).delete('settings', key) }

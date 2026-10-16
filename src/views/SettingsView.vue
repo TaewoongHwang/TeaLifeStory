@@ -5,7 +5,7 @@ import { useEntryStore } from '../stores/entryStore.js'
 import { useAppStore } from '../stores/appStore.js'
 import { MAX_BACKUP_SIZE, validateBackup } from '../db/backup.js'
 import { localDate } from '../utils/entry.js'
-import { entriesToCsv } from '../utils/csv.js'
+import { entriesToCsv, mealsToCsv } from '../utils/csv.js'
 import { optionStores } from '../config/defaults.js'
 import OptionManager from '../components/OptionManager.vue'
 import InstallGuide from '../components/InstallGuide.vue'
@@ -39,14 +39,14 @@ async function exportData() {
   } catch { error.value = '백업 파일을 만들지 못했습니다. 다시 시도해 주세요.' }
   finally { busy.value = false }
 }
-async function exportCsv() {
+async function exportCsv(meal = false) {
   busy.value = true
   csvError.value = ''
   try {
     await entries.load()
-    const blob = new Blob([entriesToCsv(entries.entries)], { type: 'text/csv;charset=utf-8' })
-    downloadFile(blob, `tea-life-story-records-${localDate()}.csv`)
-    app.notify('차 기록을 CSV로 내보냈어요. 엑셀 등에서 표로 펼쳐 보세요.')
+    const blob = new Blob([(meal ? mealsToCsv : entriesToCsv)(entries.entries)], { type: 'text/csv;charset=utf-8' })
+    downloadFile(blob, `tea-life-story-${meal ? 'meals' : 'records'}-${localDate()}.csv`)
+    app.notify(`${meal ? '밥' : '차'} 기록을 CSV로 내보냈어요. 엑셀 등에서 표로 펼쳐 보세요.`)
   } catch { csvError.value = 'CSV 파일을 만들지 못했습니다. 다시 시도해 주세요. 기존 기록은 유지됩니다.' }
   finally { busy.value = false }
 }
@@ -66,7 +66,7 @@ async function selectBackup(event) {
 async function restore() {
   busy.value = true
   error.value = ''
-  try { await settings.importData(backup.value, mode.value); await entries.load(); backup.value = null; app.notify('백업에서 차 일기를 복원했어요.') }
+  try { await settings.importData(backup.value, mode.value); await entries.load(); backup.value = null; app.notify('백업에서 일기를 복원했어요.') }
   catch { error.value = '복원하지 못했습니다. 파일과 저장 공간을 확인해 주세요.' }
   finally { busy.value = false }
 }
@@ -79,14 +79,15 @@ async function addSamples() {
 }
 </script>
 <template>
-  <div><div class="page-eyebrow">MAKE IT YOUR OWN</div><div class="page-title"><h1>나의 일기장 설정</h1><p>나의 취향을 담고, 차 이야기를 오래 간직해요.</p></div>
+  <div><div class="page-eyebrow">MAKE IT YOUR OWN</div><div class="page-title"><h1>나의 일기장 설정</h1><p>나의 취향을 담고, 차와 밥 이야기를 오래 간직해요.</p></div>
     <section class="panel"><div class="section-heading"><h2>나의 차 취향 <small>MY TEA RHYTHM</small></h2></div><p class="muted">차 종류별 평균 평점과 차를 마신 날들을 돌아보세요.</p><RouterLink to="/stats" class="button secondary"><AppIcon name="chart" />통계 보기<AppIcon name="arrow" /></RouterLink></section>
-    <section class="panel"><div class="section-heading"><h2>기록을 오래 간직하기 <small>KEEP YOUR STORIES</small></h2></div><p class="muted">소중한 기록과 사진은 이 브라우저에만 저장됩니다. 브라우저 데이터를 지우거나 기기를 바꾸기 전에 백업해 주세요.</p><div class="backup-actions"><button type="button" class="button secondary" :disabled="busy" @click="exportData"><AppIcon name="download" />전체 데이터 내보내기</button><label class="button secondary" :class="{ disabled: busy }" for="backup-file"><AppIcon name="upload" />데이터 가져오기</label><input id="backup-file" class="file-input" type="file" accept=".json,application/json" :disabled="busy" @change="selectBackup" /></div><p class="small muted">JSON · 기록, 사진, 선택 목록, 작성 중 초안을 함께 백업합니다.</p><p v-if="error && !backup" role="alert" class="inline-error">{{ error }}</p></section>
-    <section class="panel"><div class="section-heading"><h2>차 이야기를 표로 펼치기 <small>STORIES IN A TABLE</small></h2></div><p class="muted">저장한 차 기록을 CSV 파일로 내려받아 엑셀 등에서 읽고 정리할 수 있어요.</p><div class="backup-actions"><button type="button" class="button secondary" :disabled="busy" @click="exportCsv"><AppIcon name="download" />차 기록 CSV 내보내기</button></div><p class="small muted">CSV는 표로 보는 용도이며 다시 가져올 수 없습니다. 사진·설정·초안까지 보관하거나 복원하려면 위의 JSON 백업을 이용해 주세요.</p><p v-if="csvError" role="alert" class="inline-error">{{ csvError }}</p></section>
+    <section class="panel"><div class="section-heading"><h2>나에게 맞는 한 끼</h2></div><p class="muted">편했던 재료 조합과 음식점, 다시 사고 싶은 재료를 찾아봐요.</p><div class="backup-actions"><RouterLink to="/meal-patterns" class="button secondary">편했던 밥 기록 돌아보기</RouterLink><RouterLink to="/purchases" class="button secondary">재료 구매 노트</RouterLink></div></section>
+    <section class="panel"><div class="section-heading"><h2>기록을 오래 간직하기 <small>KEEP YOUR STORIES</small></h2></div><p class="muted">소중한 기록과 사진은 이 브라우저에만 저장됩니다. 브라우저 데이터를 지우거나 기기를 바꾸기 전에 백업해 주세요.</p><div class="backup-actions"><button type="button" class="button secondary" :disabled="busy" @click="exportData"><AppIcon name="download" />전체 데이터 내보내기</button><label class="button secondary" :class="{ disabled: busy }" for="backup-file"><AppIcon name="upload" />데이터 가져오기</label><input id="backup-file" class="file-input" type="file" accept=".json,application/json" :disabled="busy" @change="selectBackup" /></div><p class="small muted">JSON v2 · 차·밥 기록, 사진, 재료 구매 노트, 선택 목록, 각각의 초안을 함께 백업합니다. 이전 차 백업(v1)도 가져올 수 있어요. 새 백업은 업데이트된 앱에서 복원해 주세요.</p><p v-if="error && !backup" role="alert" class="inline-error">{{ error }}</p></section>
+    <section class="panel"><div class="section-heading"><h2>차와 밥 이야기를 표로 펼치기 <small>STORIES IN A TABLE</small></h2></div><p class="muted">저장한 차·밥 기록을 각각 CSV 파일로 내려받아 엑셀 등에서 읽고 정리할 수 있어요.</p><div class="backup-actions"><button type="button" class="button secondary" :disabled="busy" @click="exportCsv(false)"><AppIcon name="download" />차 기록 CSV 내보내기</button><button type="button" class="button secondary" :disabled="busy" @click="exportCsv(true)"><AppIcon name="download" />밥 기록 CSV 내보내기</button></div><p class="small muted">CSV는 표로 보는 용도이며 다시 가져올 수 없습니다. 사진·설정·초안까지 보관하거나 복원하려면 위의 JSON 백업을 이용해 주세요.</p><p v-if="csvError" role="alert" class="inline-error">{{ csvError }}</p></section>
     <section class="panel"><div class="section-heading"><h2>나의 선택 목록 <small>YOUR PREFERENCES</small></h2></div><p class="muted">자주 마시는 차와 이름 붙인 내 차구를 더해 보세요. 내 차구에서 등록한 이름을 수정·삭제할 수 있어요. 기본 차 종류는 작성 화면에 항상 표시되며, 목록을 바꿔도 기존 일기의 내용은 유지됩니다.</p><OptionManager v-for="store in optionStores" :key="store" :store-name="store" /></section>
     <InstallGuide />
     <section v-if="dev" class="panel"><h2>개발 확인용 샘플</h2><p class="muted">샘플 표시가 있는 기록 3개를 추가합니다. 실제 기록과 함께 통계에 포함되며 개별 삭제할 수 있습니다. 배포 버전에는 이 기능이 없습니다.</p><button class="button secondary" :disabled="busy" @click="addSamples">샘플 기록 3개 추가</button></section>
-    <div class="settings-footer"><span>차곡차곡</span><p>한 잔의 차, 나만의 이야기.</p><small>VERSION 0.1.0 · LOCAL FIRST</small></div>
-    <BaseModal v-if="backup" title="백업을 가져올까요?" @close="!busy && (backup = null)"><p class="preserve-lines">{{ fileName }}<br />차 기록 {{ backup.data.entries.length }}개 · 현재 기록 {{ entries.entries.length }}개</p><fieldset class="restore-options" :disabled="busy"><legend>복원 방식</legend><label><input v-model="mode" type="radio" value="merge" />병합 <small>기존 기록 유지. 같은 ID는 더 최근에 수정된 기록을 사용합니다.</small></label><label><input v-model="mode" type="radio" value="replace" />전체 교체 <small>현재 기록, 설정, 초안을 모두 지우고 백업 내용으로 교체합니다.</small></label></fieldset><p v-if="mode === 'replace'" class="inline-error">전체 교체는 되돌릴 수 없습니다. 현재 데이터를 먼저 내보내는 것을 권장합니다.</p><p v-if="error" role="alert" class="inline-error">{{ error }}</p><div class="modal-actions"><button class="button secondary" :disabled="busy" @click="backup = null">취소</button><button class="button" :class="mode === 'replace' ? 'danger' : 'primary'" :disabled="busy" @click="restore">{{ busy ? '복원 중…' : mode === 'replace' ? '전체 교체하기' : '병합하기' }}</button></div></BaseModal>
+    <div class="settings-footer"><span>차곡차곡</span><p>차 한 잔과 밥 한 끼, 나만의 이야기.</p><small>VERSION 0.1.0 · LOCAL FIRST</small></div>
+    <BaseModal v-if="backup" title="백업을 가져올까요?" @close="!busy && (backup = null)"><p class="preserve-lines">{{ fileName }}<br />차·밥 기록 {{ backup.data.entries.length }}개 · 구매 노트 {{ backup.data.purchases.length }}개 · 현재 기록 {{ entries.entries.length }}개</p><fieldset class="restore-options" :disabled="busy"><legend>복원 방식</legend><label><input v-model="mode" type="radio" value="merge" />병합 <small>기존 기록 유지. 같은 ID는 더 최근에 수정된 기록을 사용합니다.</small></label><label><input v-model="mode" type="radio" value="replace" />전체 교체 <small>현재 차·밥 기록, 구매 노트, 설정, 초안을 모두 지우고 백업 내용으로 교체합니다.</small></label></fieldset><p v-if="mode === 'replace'" class="inline-error">전체 교체는 되돌릴 수 없습니다. 현재 데이터를 먼저 내보내는 것을 권장합니다.</p><p v-if="error" role="alert" class="inline-error">{{ error }}</p><div class="modal-actions"><button class="button secondary" :disabled="busy" @click="backup = null">취소</button><button class="button" :class="mode === 'replace' ? 'danger' : 'primary'" :disabled="busy" @click="restore">{{ busy ? '복원 중…' : mode === 'replace' ? '전체 교체하기' : '병합하기' }}</button></div></BaseModal>
   </div>
 </template>

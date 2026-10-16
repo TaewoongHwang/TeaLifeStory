@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { listOptions, putOption, removeOption, getSetting, setSetting, deleteSetting } from '../db/settings.js'
 import { exportBackup, importBackup } from '../db/backup.js'
 import { normalizeEntry } from '../utils/entry.js'
+import { draftKey, isMeal } from '../utils/record.js'
 
 // Serialize draft operations, so a pending autosave cannot recreate a discarded draft.
 let draftQueue = Promise.resolve()
@@ -35,12 +36,12 @@ export const useSettingsStore = defineStore('settings', {
       await this.load()
     },
     async deleteOption(store, id) { await removeOption(store, id); await this.load() },
-    getDraft() { return draftQueue.catch(() => {}).then(() => getSetting('draft')) },
+    getDraft(kind = 'tea') { return draftQueue.catch(() => {}).then(() => getSetting(draftKey(kind))) },
     saveDraft(entry) {
       const snapshot = normalizeEntry(entry)
-      return queueDraft(() => setSetting('draft', snapshot))
+      return queueDraft(() => setSetting(draftKey(isMeal(snapshot) ? 'meal' : 'tea'), snapshot))
     },
-    clearDraft() { return queueDraft(() => deleteSetting('draft')) },
+    clearDraft(kind = 'tea') { return queueDraft(() => deleteSetting(draftKey(kind))) },
     async exportData() { await Promise.all([draftQueue.catch(() => {}), preferenceQueue.catch(() => {})]); return exportBackup() },
     async importData(data, mode) {
       await Promise.all([draftQueue.catch(() => {}), preferenceQueue.catch(() => {})])

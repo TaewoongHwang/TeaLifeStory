@@ -1,4 +1,5 @@
 import { matchesEntrySearch, parseEntrySearch } from './entrySearch.js'
+import { isMeal, recordCategory } from './record.js'
 
 export function localDate(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -17,6 +18,12 @@ export function createEntry() {
 }
 
 export const clone = (value) => JSON.parse(JSON.stringify(value))
+export function createMeal() {
+  const entry = createEntry()
+  delete entry.tea
+  delete entry.brewing
+  return { ...entry, kind: 'meal', meal: { name: '', source: '', occasion: '', venue: '', portion: '', spice: '', before: '', drink: '', ingredients: [] }, observations: [] }
+}
 export function countEntryDetails(entry) {
   const values = [
     entry.tea.amount, entry.brewing.tool, entry.brewing.material, entry.brewing.volume, entry.brewing.waterTemperature, entry.brewing.steepTime,
@@ -29,9 +36,11 @@ export function countEntryDetails(entry) {
 }
 export function normalizeEntry(value) {
   const entry = clone(value)
-  if (entry.tea.amount === '') entry.tea.amount = null
-  for (const key of ['volume', 'waterTemperature', 'steepTime']) {
-    if (!Object.hasOwn(entry.brewing, key) || entry.brewing[key] === '') entry.brewing[key] = null
+  if (!isMeal(entry)) {
+    if (entry.tea.amount === '') entry.tea.amount = null
+    for (const key of ['volume', 'waterTemperature', 'steepTime']) {
+      if (!Object.hasOwn(entry.brewing, key) || entry.brewing[key] === '') entry.brewing[key] = null
+    }
   }
   if (!Object.hasOwn(entry, 'favorite')) entry.favorite = false
   // Preserve existing photos while accepting the MVP model without attachments.
@@ -44,6 +53,7 @@ export function formatDate(value, options = { month: 'long', day: 'numeric', wee
   return new Intl.DateTimeFormat('ko-KR', options).format(new Date(`${value}T12:00:00`))
 }
 export function summarize(entries, month = localDate().slice(0, 7)) {
+  entries = entries.filter((entry) => !isMeal(entry))
   const current = month ? entries.filter((entry) => entry.context.date.startsWith(month)) : []
   const rated = current.filter((entry) => entry.experience.rating > 0)
   const counts = new Map()
@@ -55,10 +65,10 @@ export function summarize(entries, month = localDate().slice(0, 7)) {
   return { count: current.length, average: rated.length ? (rated.reduce((sum, entry) => sum + entry.experience.rating, 0) / rated.length).toFixed(1) : '—', categories, favorite: categories[0]?.[0] || '—' }
 }
 
-export function filterEntries(entries, { search = '', category = '', rating = '', from = '', to = '', sort = 'newest', favoritesOnly = false } = {}) {
+export function filterEntries(entries, { search = '', category = '', rating = '', from = '', to = '', sort = 'newest', favoritesOnly = false, kind = '' } = {}) {
   const terms = parseEntrySearch(search)
   return entries.filter((entry) => {
-    return (!favoritesOnly || entry.favorite === true) && matchesEntrySearch(entry, terms) && (!category || entry.tea.category === category) &&
+    return (!kind || (isMeal(entry) ? 'meal' : 'tea') === kind) && (!favoritesOnly || entry.favorite === true) && matchesEntrySearch(entry, terms) && (!category || recordCategory(entry) === category) &&
       (rating === '' || entry.experience.rating === Number(rating)) &&
       (!from || entry.context.date >= from) && (!to || entry.context.date <= to)
   }).sort((a, b) => {

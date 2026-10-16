@@ -1,34 +1,38 @@
 import { getDB, storeNames } from './index.js'
 import { optionStores } from '../config/defaults.js'
 import { normalizeEntry } from '../utils/entry.js'
+import { isMeal } from '../utils/record.js'
+import { fail, isObject, text, identifier, number, iso, date } from './validation.js'
+import { validateMealFields, validatePurchase } from './mealValidation.js'
 
 export const MAX_BACKUP_SIZE = 30 * 1024 * 1024
-const fail = () => { throw new Error('올바른 차곡차곡 백업 파일이 아닙니다. 기존 데이터는 유지됩니다.') }
-const isObject = (value) => value && typeof value === 'object' && !Array.isArray(value)
-const text = (value, max = 10000) => typeof value === 'string' && value.length <= max
-const identifier = (value) => text(value, 200) && value.trim().length > 0
-const number = (value, max = 100000) => value === null || (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= max)
-const iso = (value) => text(value, 40) && !Number.isNaN(Date.parse(value))
-const date = (value) => value === '' || (text(value, 10) && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)) && new Date(`${value}T12:00:00Z`).toISOString().slice(0, 10) === value)
 
 export function validateEntry(entry, draft = false) {
   if (!isObject(entry) || !identifier(entry.id) || !iso(entry.createdAt) || !iso(entry.updatedAt)) fail()
-  if (![entry.tea, entry.brewing, entry.context, entry.experience].every(isObject)) fail()
+  if (entry.kind !== undefined && !['tea', 'meal'].includes(entry.kind)) fail()
+  if (![entry.context, entry.experience].every(isObject)) fail()
+  if (!isMeal(entry) && ![entry.tea, entry.brewing].every(isObject)) fail()
   // Drafts can contain unfinished out-of-range inputs. Final entries keep their bounds.
   const numeric = (value, max) => draft
     ? value === null || (typeof value === 'number' && Number.isFinite(value))
     : number(value, max)
   // Check raw numbers before JSON cloning could turn Infinity/NaN into null.
-  if (entry.tea.amount !== '' && !numeric(entry.tea.amount)) fail()
-  if (entry.brewing.volume !== '' && !numeric(entry.brewing.volume)) fail()
-  for (const [key, max] of [['waterTemperature', 100], ['steepTime', 100000]]) {
-    if (Object.hasOwn(entry.brewing, key) && entry.brewing[key] !== '' && !numeric(entry.brewing[key], max)) fail()
+  if (!isMeal(entry)) {
+    if (entry.tea.amount !== '' && !numeric(entry.tea.amount)) fail()
+    if (entry.brewing.volume !== '' && !numeric(entry.brewing.volume)) fail()
+    for (const [key, max] of [['waterTemperature', 100], ['steepTime', 100000]]) {
+      if (Object.hasOwn(entry.brewing, key) && entry.brewing[key] !== '' && !numeric(entry.brewing[key], max)) fail()
+    }
   }
   const normalized = normalizeEntry(entry)
   const { tea, brewing, context, experience, photos, tags, favorite } = normalized
-  if (!text(tea.name, 200) || (!draft && !tea.name.trim()) || !text(tea.category, 100) || !numeric(tea.amount) || tea.amountUnit !== 'g') fail()
-  if (!text(brewing.tool, 100) || !text(brewing.material, 100) || !numeric(brewing.volume) || brewing.volumeUnit !== 'cc') fail()
-  if (!numeric(brewing.waterTemperature, 100) || !numeric(brewing.steepTime) || typeof favorite !== 'boolean') fail()
+  if (isMeal(normalized)) validateMealFields(normalized, draft)
+  else {
+    if (!text(tea.name, 200) || (!draft && !tea.name.trim()) || !text(tea.category, 100) || !numeric(tea.amount) || tea.amountUnit !== 'g') fail()
+    if (!text(brewing.tool, 100) || !text(brewing.material, 100) || !numeric(brewing.volume) || brewing.volumeUnit !== 'cc') fail()
+    if (!numeric(brewing.waterTemperature, 100) || !numeric(brewing.steepTime)) fail()
+  }
+  if (typeof favorite !== 'boolean') fail()
   if (!date(context.date) || !text(context.time, 5) || (context.time && !/^([01]\d|2[0-3]):[0-5]\d$/.test(context.time))) fail()
   if (!['location', 'people', 'reason'].every((key) => text(context[key]))) fail()
   if (!Number.isInteger(experience.rating) || experience.rating < 0 || experience.rating > 5) fail()
@@ -39,17 +43,18 @@ export function validateEntry(entry, draft = false) {
 }
 
 export function validateBackup(input) {
-  if (!isObject(input) || input.app !== 'tea-life-story' || input.version !== 1 || !isObject(input.data)) fail()
+  if (!isObject(input) || input.app !== 'tea-life-story' || ![1, 2].includes(input.version) || !isObject(input.data)) fail()
   const data = {}
   for (const store of storeNames) {
-    const items = input.data[store]
+    const items = input.version === 1 && store === 'purchases' && input.data[store] === undefined ? [] : input.data[store]
     if (!Array.isArray(items) || items.length > 10000) fail()
     const ids = new Set()
     data[store] = items.map((item) => {
       const id = store === 'settings' ? item?.key : item?.id
       if (!identifier(id) || ids.has(id)) fail()
       ids.add(id)
-      if (store === 'entries') return validateEntry(item)
+      if (store === 'entries') { if (input.version === 1 && isMeal(item)) fail(); return validateEntry(item) }
+      if (store === 'purchases') { if (input.version === 1) fail(); return validatePurchase(item) }
       if (optionStores.includes(store)) {
         if (!isObject(item) || !text(item.name, 100) || !item.name.trim()) fail()
         return { id: item.id, name: item.name.trim() }
@@ -58,11 +63,14 @@ export function validateBackup(input) {
         if (typeof item.value !== 'boolean') fail()
         return { key: item.key, value: item.value }
       }
-      if (item.key !== 'draft') fail()
-      return { key: 'draft', value: validateEntry(item.value, true) }
+      if (!['draft', 'mealDraft'].includes(item.key)) fail()
+      if (input.version === 1 && item.key === 'mealDraft') fail()
+      const value = validateEntry(item.value, true)
+      if (isMeal(value) !== (item.key === 'mealDraft')) fail()
+      return { key: item.key, value }
     })
   }
-  return { app: input.app, version: 1, data }
+  return { app: input.app, version: input.version, data }
 }
 
 export async function exportBackup() {
@@ -72,8 +80,8 @@ export async function exportBackup() {
   await transaction.done
   const data = Object.fromEntries(storeNames.map((store, index) => [store, values[index]]))
   data.entries = data.entries.map(normalizeEntry)
-  data.settings = data.settings.map((item) => item.key === 'draft' ? { ...item, value: normalizeEntry(item.value) } : item)
-  return { app: 'tea-life-story', version: 1, exportedAt: new Date().toISOString(), data }
+  data.settings = data.settings.map((item) => ['draft', 'mealDraft'].includes(item.key) ? { ...item, value: normalizeEntry(item.value) } : item)
+  return { app: 'tea-life-story', version: 2, exportedAt: new Date().toISOString(), data }
 }
 
 export async function importBackup(input, mode = 'replace') {
@@ -88,7 +96,7 @@ export async function importBackup(input, mode = 'replace') {
       for (const item of backup.data[store]) {
         if (mode === 'merge') {
           const existing = await target.get(store === 'settings' ? item.key : item.id)
-          if (existing && (store !== 'entries' || Date.parse(existing.updatedAt) >= Date.parse(item.updatedAt))) continue
+          if (existing && (!['entries', 'purchases'].includes(store) || Date.parse(existing.updatedAt) >= Date.parse(item.updatedAt))) continue
         }
         await target.put(item)
       }

@@ -7,7 +7,7 @@ const links = [
   { to: '/entries/new', icon: 'plus', label: '새 기록', add: true },
   { to: '/settings', icon: 'settings', label: '설정' },
 ]
-const active = (link) => link.to === '/' ? route.path === '/' || (route.path.startsWith('/entries') && route.path !== '/entries/new') : link.to === '/settings' ? route.path === '/settings' || route.path === '/stats' : route.path === link.to
+const active = (link) => link.to === '/' ? route.path === '/' || (/^\/(entries|meals)\//.test(route.path) && !route.path.endsWith('/new')) : link.to === '/settings' ? ['/settings', '/stats', '/purchases', '/meal-patterns'].includes(route.path) : ['/entries/new', '/meals/new'].includes(route.path)
 </script>
 <template>
   <nav class="bottom-nav" aria-label="주 메뉴">

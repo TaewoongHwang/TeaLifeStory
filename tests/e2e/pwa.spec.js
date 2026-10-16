@@ -3,7 +3,7 @@ import { nav as navigate } from './helpers/navigation.js'
 
 test('production manifest and service worker meet Chromium installability checks', async ({ page, context }) => {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '오늘은 어떤 차를 마셨나요?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
   await page.evaluate(async () => { await navigator.serviceWorker.ready })
   await page.reload()
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
@@ -20,7 +20,7 @@ test('install request survives route changes; dismissals, failures and installat
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '오늘은 어떤 차를 마셨나요?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
   // OS installation cannot run headlessly. Exercise the browser event contract.
   async function requestInstall(fail = false) {
     await page.evaluate((fail) => {
@@ -50,7 +50,7 @@ test('install request survives route changes; dismissals, failures and installat
   await requestInstall()
   await page.evaluate(() => window.dispatchEvent(new Event('appinstalled')))
   await nav('설정')
-  await expect(page.getByRole('heading', { name: '홈 화면의 차 일기장' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '홈 화면의 차곡차곡' })).toBeVisible()
   await expect(page.getByRole('button', { name: '앱 설치', exact: true })).toHaveCount(0)
   expect(errors).toEqual([])
 })

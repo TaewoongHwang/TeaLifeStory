@@ -86,6 +86,8 @@ test('version 1 category IDs, photos and Boicha records and drafts survive merge
   const issues = diagnostics(page)
   await page.goto('./#/settings')
   const fixture = await backup(page)
+  fixture.version = 1
+  delete fixture.data.purchases
   fixture.data.categories = ['녹차', '백차', '황차', '청차', '홍차', '흑차', '보이차', '블렌딩차', '허브차', '기타'].map((name, index) => ({ id: `categories-${index}`, name }))
   const legacy = createEntry()
   Object.assign(legacy.tea, { name: '기존 보이차', category: '보이차' })
@@ -98,7 +100,7 @@ test('version 1 category IDs, photos and Boicha records and drafts survive merge
   fixture.data.settings = [{ key: 'draft', value: draft }]
   await restore(page, fixture, 'merge')
   const merged = await backup(page)
-  expect(merged.version).toBe(1)
+  expect(merged.version).toBe(2)
   expect(merged.data.categories).toEqual(expect.arrayContaining(fixture.data.categories))
   expect(merged.data.categories).toHaveLength(10)
   expect(merged.data.entries).toEqual([legacy])

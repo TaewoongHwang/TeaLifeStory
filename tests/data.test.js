@@ -96,7 +96,7 @@ test('backup validates dates, duplicate IDs, types, units, unsafe photo URLs and
     (backup) => { backup.data.entries[0].photos[0].data = 'data:image/svg+xml;base64,AAAA' },
     (backup) => { backup.data.entries.push(backup.data.entries[0]) },
     (backup) => { backup.data.settings.push({ key: 'unknown', value: {} }) },
-    (backup) => { backup.version = 2 },
+    (backup) => { backup.version = 3 },
   ]) {
     const malformed = structuredClone(valid)
     mutate(malformed)
@@ -273,13 +273,15 @@ test('entry display preference preserves v1 backups, serializes changes, and rej
   await settings.load()
   assert.equal(settings.entryDetailsExpanded, false)
   const old = await settings.exportData()
+  old.version = 1
+  delete old.data.purchases
   await Promise.all([settings.saveEntryDetailsExpanded(true), settings.saveEntryDetailsExpanded(false)])
   assert.equal(await getSetting('entryDetailsExpanded'), false)
   await settings.saveEntryDetailsExpanded(true)
   const expanded = await settings.exportData()
   await assert.rejects(settings.saveEntryDetailsExpanded('true'))
   assert.deepEqual((await settings.exportData()).data, expanded.data)
-  assert.equal(expanded.version, 1)
+  assert.equal(expanded.version, 2)
   assert.deepEqual(expanded.data.entries, old.data.entries)
   await settings.importData(old, 'replace')
   assert.equal(settings.entryDetailsExpanded, false)

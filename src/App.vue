@@ -37,10 +37,10 @@ onUnmounted(() => {
 <template>
   <div class="app-shell" :class="{ 'has-notice': Boolean(app.message) || !online || needRefresh }">
     <AppHeader />
-    <div v-if="!online" class="connection-note" role="status">오프라인 · 이 기기에 저장된 차 일기를 사용할 수 있어요.</div>
+    <div v-if="!online" class="connection-note" role="status">오프라인 · 이 기기에 저장된 차·밥 일기를 사용할 수 있어요.</div>
     <div v-if="needRefresh" class="update-note"><span>새 버전이 준비됐어요. 작성 중이면 저장 후 업데이트하세요.</span><button type="button" @click="updateServiceWorker()">업데이트</button><button type="button" aria-label="업데이트 알림 닫기" @click="needRefresh = false">닫기</button></div>
     <div v-if="app.message" class="notice" :class="app.tone" :role="app.tone === 'error' ? 'alert' : 'status'"><span>{{ app.message }}</span><button type="button" aria-label="알림 닫기" @click="app.message = ''">×</button></div>
-    <main id="main-content"><RouterView v-if="ready" v-slot="{ Component, route }"><component :is="Component" :key="route.fullPath" /></RouterView><div v-else class="empty-state"><template v-if="error"><p role="alert">{{ error }}</p><button class="button primary" @click="initialize">다시 시도</button></template><p v-else role="status">차 일기장을 펼치고 있어요…</p></div>
+    <main id="main-content"><RouterView v-if="ready" v-slot="{ Component, route }"><component :is="Component" :key="route.fullPath" /></RouterView><div v-else class="empty-state"><template v-if="error"><p role="alert">{{ error }}</p><button class="button primary" @click="initialize">다시 시도</button></template><p v-else role="status">일기장을 펼치고 있어요…</p></div>
       <footer class="app-copyright">© 차곡차곡</footer>
     </main>
     <BottomNavigation />

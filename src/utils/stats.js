@@ -1,3 +1,4 @@
+import { isMeal } from './record.js'
 const compareText = (a, b) => a < b ? -1 : a > b ? 1 : 0
 const averageRating = (entries) => {
   const rated = entries.filter((entry) => entry.experience.rating > 0)
@@ -7,6 +8,7 @@ const averageRating = (entries) => {
 }
 
 export function buildTeaStats(entries, month) {
+  entries = entries.filter((entry) => !isMeal(entry))
   const undatedCount = entries.filter((entry) => !entry.context.date.trim()).length
   const empty = { count: 0, average: '—', ratedCount: 0, days: 0, favoriteCount: 0, undatedCount, categories: [], trend: [], highlights: [] }
   if (typeof month !== 'string' || month.length !== 7 || !/^(?!0000)\d{4}-(0[1-9]|1[0-2])$/.test(month)) return empty
