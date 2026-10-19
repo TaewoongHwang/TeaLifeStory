@@ -2,9 +2,9 @@
 
 차(茶) 한 잔과 곡(穀), 밥 한 끼의 경험을 기록하는 모바일 중심 Vue PWA입니다. 서버와 회원가입 없이 IndexedDB에 기록을 저장합니다.
 
-보이차와 자사호를 닮은 붉은 갈색, 따뜻한 종이빛과 차분한 나무빛으로 구성했습니다. 홈은 수반 위 자사호·공도배·보이차 찻잔 사진과, 쟁반 위 구운 두부·청국장·밥·간장·김·가지볶음 사진을 두 장으로 나눴습니다. 헤더와 앱 아이콘에는 밥공기와 자사호를 뜻하는 붉은 갈색의 평면 심볼 로고를 사용합니다. 표시 이름은 `차곡차곡`이며 기존 저장소·백업 식별자는 이전 데이터를 계속 읽도록 유지합니다.
+보이차와 자사호를 닮은 붉은 갈색, 따뜻한 종이빛과 차분한 나무빛으로 구성했습니다. 홈은 수반 위 자사호·공도배·보이차 찻잔 사진과, 쟁반 위 구운 두부·청국장·밥·간장·김·가지볶음 사진을 두 장으로 나눴습니다. 헤더와 앱 아이콘에는 찻잎과 쌀알의 곡선이 겹쳐진 붉은 갈색의 평면 심볼 로고를 사용합니다. 표시 이름은 `차곡차곡`이며 기존 저장소·백업 식별자는 이전 데이터를 계속 읽도록 유지합니다.
 
-생성 원본은 `assets/generated`에, 전체 최종 프롬프트는 `assets/generated/PROMPTS.md`에 보관합니다. built-in image_gen으로 만든 차/밥 사진·심볼 로고와 이전 원본을 보존합니다. 앱에는 WebP와 크기별 PNG만 배포합니다. `npm run icons`는 `chagok-tea-scene-no-strainer-source.png`, `chagok-meal-scene-inner-source.png`를 각각 960/600px WebP로 만들고 `chagok-rice-tea-logo-source.png`로 앱 아이콘을 만듭니다(기존 Playwright Chromium 설치 필요). 크기·포맷·maskable 안전 여백 외에 내용을 다시 그리지 않습니다.
+생성 원본은 `assets/generated`에, 전체 최종 프롬프트는 `assets/generated/PROMPTS.md`에 보관합니다. built-in image_gen으로 만든 차/밥 사진·심볼 로고와 이전 원본을 보존합니다. 앱에는 WebP와 크기별 PNG만 배포합니다. `npm run icons`는 `chagok-tea-scene-no-strainer-source.png`, `chagok-meal-scene-inner-source.png`를 각각 960/600px WebP로 만들고 `chagok-leaf-rice-logo-source.png`로 앱 아이콘을 만듭니다(기존 Playwright Chromium 설치 필요). 크기·포맷·maskable 안전 여백 외에 내용을 다시 그리지 않습니다.
 
 전체 UI에는 [Pretendard](https://github.com/orioncactus/pretendard)의 v1.3.9 Variable 웹폰트를 사용합니다. 원본 WOFF2·SIL OFL 라이선스·출처/해시는 `public/fonts`에 보관합니다. 앱 안에서 폰트를 제공하고 preload·swap·PWA 캐시를 적용해 외부 CDN에 요청하지 않습니다. 로딩 전이나 미지원 한자·이모지는 시스템 글꼴로 보완하며 기록 내용은 바꾸지 않습니다.
 

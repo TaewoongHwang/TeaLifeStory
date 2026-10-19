@@ -1,8 +1,29 @@
 # 차곡차곡 생성형 이미지 원본
 
-현재 적용 원본은 로고 `chagok-rice-tea-logo-source.png`, 차 사진 `chagok-tea-scene-no-strainer-source.png`, 밥 사진 `chagok-meal-scene-inner-source.png`이다. 아래 이전 생성 과정의 '현재/유지' 표현은 해당 작업 당시의 기록이다.
+현재 적용 원본은 로고 `chagok-leaf-rice-logo-source.png`, 차 사진 `chagok-tea-scene-no-strainer-source.png`, 밥 사진 `chagok-meal-scene-inner-source.png`이다. 아래 이전 생성 과정의 '현재/유지' 표현은 해당 작업 당시의 기록이다.
 
-## 현재 로고: 밥공기와 자사호 평면 심볼 — 2026-10-19
+## 현재 로고: 찻잎과 쌀알이 겹친 심볼 — 2026-10-19
+
+- 생성 도구: built-in `image_gen.imagegen`, 새 이미지 생성, 불투명 배경. 참조 이미지 입력이나 CLI/API fallback은 사용하지 않았다.
+- 요청: 찻잎과 쌀의 모양을 함께 상징적으로 겹친 로고. 긴 찻잎과 둥근 쌀알이 겹치며 아이보리 여백이 잎맥과 두 모양의 교차를 구분한다. 별도 글자나 그릇·주전자는 없다.
+- 현재 로고 원본: `chagok-leaf-rice-logo-source.png`(1254×1254). 기본 저장 파일 `C:/Users/user1/.codex/generated_images/01a12da3-f6ad-7630-a7ae-c2410f40d714/exec-e511117a-5418-4e82-9dca-aed54d22ba4f.png`를 프로젝트에 복사했다. 이전 밥공기/자사호 로고 원본도 보존한다.
+- 실제 결과 검토: 뾰족한 찻잎·잎맥과 둥근 쌀알, 교차 부분의 여백과 하나로 이어지는 실루엣을 확인했다.
+- `npm run icons`로 헤더/favicon 192px(38,178B), PWA 512px(238,712B), 10% 여백의 maskable 512px(176,432B), Apple 180px(34,054B) PNG를 만들었다. 홈 사진은 기존 원본을 사용한다.
+- 실제 브라우저 44px 헤더와 모바일/PC 배치를 확인했다. 홈 WebP 4개는 변경 전후 SHA-256이 동일하고, 오프라인에서 WebP/PNG 8개를 읽어 현재 public 파일과 해시가 전부 일치함을 확인했다.
+
+### 최종 생성 프롬프트
+
+```text
+Use case: logo-brand
+Asset type: a single finished square brand symbol for 차곡차곡, a Korean tea-and-rice meal journal. Must remain clear in a 44px app header.
+Primary request: create a symbolic integrated logo by overlapping the shape of ONE tea leaf and ONE rice grain. They must interlock into a single distinctive emblem, rather than sit side by side as separate pictograms.
+Design: one graceful elongated tea leaf with a pointed tip and a single broad negative-space central vein; one shorter, plump rice kernel with softly rounded ends and a smooth, unsegmented silhouette. Tilt these two organic forms across one another with a deliberate partial overlap. Use a simple ivory cutout at their crossing to keep each form legible while making them feel woven together. The leaf has a lively rising curve; the rice kernel adds a calm rounded countercurve. Balanced compact silhouette, confident curves, thick enough shapes and negative-space gaps to read at icon size. Restrained, warm, modern Korean editorial identity, with careful optical balance.
+Color and medium: flat graphic artwork in one solid deep terracotta brown close to #743f32 on a perfectly solid warm ivory background close to #f8f2e8. Crisp smooth edges. No photographic texture or light.
+Composition: only one emblem, centered and optically balanced in a square, filling roughly 68–74 percent of both width and height, with generous even safe margins.
+Constraints: no rice bowl, teapot, cup, utensils, wheat stalk, extra leaves, extra kernels, flowers, text, letters, borders, decorative frame, mockup or presentation sheet. Do not make two identical leaves; keep the short rounded rice grain distinct from the longer pointed veined tea leaf. No gradients, shadows, realism, embossing, 3D or watermark. Opaque background.
+```
+
+## 이전 로고: 밥공기와 자사호 평면 심볼 — 2026-10-19
 
 - 생성 도구: built-in `image_gen.imagegen`, 새 이미지 생성, 불투명 배경. 참조 이미지 입력이나 CLI/API fallback은 사용하지 않았다.
 - 요청: 헤더 사진형 마크를 밥과 차를 뜻하는 디자인된 로고로 변경. 밥공기와 쌀알 세 개, 자사호의 뚜껑·주둥이·손잡이를 단순한 붉은 갈색 실루엣과 여백으로 표현했다. 별도 글자는 없다.
