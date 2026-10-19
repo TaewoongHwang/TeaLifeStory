@@ -7,11 +7,14 @@ const root = new URL('../', import.meta.url)
 const browser = await chromium.launch()
 try {
   const page = await browser.newPage()
-  const hero = (await readFile(new URL('assets/generated/chagok-tea-hero-source.png', root))).toString('base64')
-  const mark = (await readFile(new URL('assets/generated/chagok-mark-source.png', root))).toString('base64')
+  const hero = (await readFile(new URL('assets/generated/chagok-tea-scene-no-strainer-source.png', root))).toString('base64')
+  const meal = (await readFile(new URL('assets/generated/chagok-meal-scene-inner-source.png', root))).toString('base64')
+  const mark = (await readFile(new URL('assets/generated/chagok-rice-tea-logo-source.png', root))).toString('base64')
   const variants = [
     { name: 'images/chagok-tea-hero.webp', source: hero, width: 960, height: 640, type: 'image/webp' },
     { name: 'images/chagok-tea-hero-small.webp', source: hero, width: 600, height: 400, type: 'image/webp' },
+    { name: 'images/chagok-meal-hero.webp', source: meal, width: 960, height: 640, type: 'image/webp' },
+    { name: 'images/chagok-meal-hero-small.webp', source: meal, width: 600, height: 400, type: 'image/webp' },
     { name: 'icons/chagok-icon-192.png', source: mark, width: 192, height: 192, type: 'image/png' },
     { name: 'icons/chagok-icon-512.png', source: mark, width: 512, height: 512, type: 'image/png' },
     { name: 'icons/chagok-icon-maskable-512.png', source: mark, width: 512, height: 512, type: 'image/png', padding: .1 },

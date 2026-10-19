@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { createEntry } from '../../src/utils/entry.js'
 
-const heroDescription = '자사호와 찻잔, 차가 담긴 공도배가 놓인 차 자리'
+const heroDescription = '수반 위의 자사호, 공도배와 보이차가 담긴 찻잔'
+const mealDescription = '쟁반 위에 구운 두부, 청국장, 밥, 간장, 김, 가지볶음을 담은 한 끼'
 import { nav } from './helpers/navigation.js'
 
 function diagnostics(page) {
@@ -41,7 +42,7 @@ test('차곡차곡 branding, generated hero and native icons use the deployment 
   await start(page)
   const base = new URL(page.url()).pathname
   await expect(page).toHaveTitle('차곡차곡 · 차와 밥의 일기')
-  await expect(page.locator('.brand')).toHaveText(/차곡차곡\s*차와 밥으로 채운 하루/)
+  await expect(page.locator('.brand')).toHaveText('차곡차곡')
   await expect(page.locator('body')).not.toContainText(/Tea Life Story/i)
   const brandImage = page.locator('.brand-mark-image')
   await expect(brandImage).toHaveAttribute('alt', '')
@@ -52,6 +53,11 @@ test('차곡차곡 branding, generated hero and native icons use the deployment 
   await expect(hero).toHaveAttribute('alt', heroDescription)
   await expect(hero).toHaveAttribute('src', `${base}images/chagok-tea-hero.webp`)
   await loadedImage(hero)
+  const meal = page.locator('img.meal-illustration')
+  await expect(meal).toHaveAttribute('alt', mealDescription)
+  await expect(meal).toHaveAttribute('src', `${base}images/chagok-meal-hero.webp`)
+  await loadedImage(meal)
+  await expect(page.locator('.hero-scenes figure')).toHaveCount(2)
 
   const manifestHref = await page.locator('link[rel=manifest]').getAttribute('href')
   const manifestResponse = await request.get(new URL(manifestHref, page.url()).href)
@@ -109,6 +115,7 @@ test('generated home artwork and new brand preserve mobile diary entry and botto
     for (const width of [360, 390, 430]) {
       await page.setViewportSize({ width, height })
       await loadedImage(page.locator('img.tea-illustration'))
+      await loadedImage(page.locator('img.meal-illustration'))
       const layout = await page.locator('.new-entry-button.primary').evaluate((button) => {
         const rect = button.getBoundingClientRect()
         const target = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)
@@ -218,6 +225,7 @@ test('existing tea-life-story database and v1 JSON remain compatible; generated 
 
   await nav(page, '홈')
   await loadedImage(page.locator('img.tea-illustration'))
+  await loadedImage(page.locator('img.meal-illustration'))
   await page.evaluate(() => navigator.serviceWorker.ready)
   await page.reload()
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
@@ -226,6 +234,7 @@ test('existing tea-life-story database and v1 JSON remain compatible; generated 
   await expect(page).toHaveTitle('차곡차곡 · 차와 밥의 일기')
   await expect(page.getByText(/오프라인 ·/)).toBeVisible()
   await loadedImage(page.locator('img.tea-illustration'))
+  await loadedImage(page.locator('img.meal-illustration'))
   await loadedImage(page.locator('.brand-mark-image'))
   await nav(page, '통계')
   await page.getByLabel('돌아보고 싶은 달', { exact: true }).fill('2026-01')

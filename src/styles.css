@@ -2105,6 +2105,10 @@ input::-webkit-inner-spin-button {
   .entry-form-view .record-kind-switch { margin-bottom: 8px; }
   .entry-form-view .record-kind-switch a { padding: 8px; }
 }
+.split-scenes-hero { grid-template-columns: minmax(0,1fr); }
+.hero-scenes { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.hero-scenes figure { margin: 0; min-width: 0; }
+.hero-scenes .tea-illustration,.hero-scenes .meal-illustration { display: block; width: 100%; height: auto; margin: 0; aspect-ratio: 3 / 2; object-fit: contain; border-radius: 8px; }
 @media(prefers-reduced-motion:reduce) {
   * {
     transition: none!important;
