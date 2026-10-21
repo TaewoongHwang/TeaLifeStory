@@ -99,11 +99,15 @@ test('search finds dates and descriptions together, shows matching context and s
 
 test('quick periods and filters combine with search; clear actions preserve their scope and Korean composition waits', async ({ page }) => {
   const issues = diagnostics(page)
-  const now = new Date()
-  const today = localDate(now)
+  // Use the browser's calendar date even when the CI process runs in UTC.
+  const today = await page.evaluate(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  })
+  const [year, month] = today.split('-').map(Number)
   const firstDay = `${today.slice(0, 7)}-01`
-  const monthEnd = localDate(new Date(now.getFullYear(), now.getMonth() + 1, 0))
-  const previous = localDate(new Date(now.getFullYear(), now.getMonth(), 0))
+  const monthEnd = localDate(new Date(year, month, 0))
+  const previous = localDate(new Date(year, month - 1, 0))
   const entries = [record('오늘 녹차', today), record('이번달 홍차', firstDay, '홍차'), record('마지막날 녹차', monthEnd), record('이전달 녹차', previous)]
   entries[0].favorite = true; entries[0].experience.rating = 5
   await prepare(page, entries)
