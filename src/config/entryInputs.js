@@ -1,5 +1,5 @@
 export const choiceShortcuts = {
-  categories: ['녹차', '홍차', '황차', '백차', '흑차'],
+  categories: ['보이차', '녹차', '홍차', '황차', '백차', '흑차'],
   tools: ['다관', '개완', '자사호', '티포트', '머그컵', '텀블러'],
 }
 

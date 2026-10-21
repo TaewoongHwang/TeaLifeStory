@@ -4,7 +4,7 @@ import { createEntry } from '../../src/utils/entry.js'
 import { nav } from './helpers/navigation.js'
 import { chooseOption, openDetails } from './helpers/entry-form.js'
 
-const core = ['녹차', '홍차', '황차', '백차', '흑차']
+const core = ['보이차', '녹차', '홍차', '황차', '백차', '흑차']
 function diagnostics(page) {
   const issues = []
   page.on('pageerror', (error) => issues.push(error.message))
@@ -33,13 +33,13 @@ async function register(page, name) {
   await expect(page.getByRole('group', { name: '사용한 차구', exact: true }).getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true')
 }
 
-test('five core categories stay ordered; extra categories and the blending label preserve stored values', async ({ page }) => {
+test('six core categories put Boicha first; extra categories and the blending label preserve stored values', async ({ page }) => {
   const issues = diagnostics(page)
   await page.goto('./#/settings')
   const oldOptions = await backup(page)
   // Fixed entry choices remain available even if an old profile removed a default.
-  oldOptions.data.categories = oldOptions.data.categories.filter((item) => item.name !== '황차')
-  oldOptions.data.categories.push({ id: 'categories-6', name: '보이차' }, { id: 'category-matcha', name: '말차' })
+  oldOptions.data.categories = oldOptions.data.categories.filter((item) => !['황차', '보이차'].includes(item.name))
+  oldOptions.data.categories.push({ id: 'category-matcha', name: '말차' })
   await restore(page, oldOptions)
   await nav(page, '새 기록')
   const group = page.getByRole('group', { name: '차 종류', exact: true })
@@ -48,7 +48,7 @@ test('five core categories stay ordered; extra categories and the blending label
   await expect(group.getByRole('button', { name: '청차', exact: true })).toBeHidden()
   await group.locator('summary').click()
   for (const name of ['청차', '블렌딩티', '허브차', '기타', '말차']) await expect(group.getByRole('button', { name, exact: true })).toBeVisible()
-  await expect(group.getByRole('button', { name: /보이차/ })).toHaveCount(0)
+  await expect(group.getByRole('button', { name: '보이차', exact: true })).toHaveCount(1)
   await chooseOption(page, '차 종류', '블렌딩티')
   await chooseOption(page, '사용한 차구', '차관')
   await expect(primary).toHaveText(core)
@@ -108,7 +108,7 @@ test('version 1 category IDs, photos and Boicha records and drafts survive merge
   await nav(page, '기록')
   await page.locator('.tea-card').click()
   await page.getByRole('link', { name: '기록 수정', exact: true }).click()
-  const legacyButton = page.getByRole('group', { name: '차 종류', exact: true }).getByRole('button', { name: '보이차 (이전 기록)', exact: true })
+  const legacyButton = page.getByRole('group', { name: '차 종류', exact: true }).getByRole('button', { name: '보이차', exact: true })
   await expect(legacyButton).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: '수정 저장', exact: true }).click()
   await expect(page.getByRole('heading', { name: '기존 보이차', exact: true })).toBeVisible()
@@ -119,7 +119,7 @@ test('version 1 category IDs, photos and Boicha records and drafts survive merge
   await page.getByRole('button', { name: '이어쓰기', exact: true }).click()
   await expect(legacyButton).toHaveAttribute('aria-pressed', 'true')
   await chooseOption(page, '차 종류', '흑차')
-  await expect(legacyButton).toHaveCount(0)
+  await expect(legacyButton).toHaveAttribute('aria-pressed', 'false')
   await page.getByRole('button', { name: '기록 저장', exact: true }).click()
   await expect(page.getByRole('heading', { name: '보이차 초안', exact: true })).toBeVisible()
   await page.reload()

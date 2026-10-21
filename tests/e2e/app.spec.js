@@ -7,7 +7,7 @@ import { chooseOption, openDetails } from './helpers/entry-form.js'
 
 async function start(page) {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔 오늘의 한 끼' })).toBeVisible()
 }
 async function create(page, name, { rating = 0, category = '', feeling = '', tags = '' } = {}) {
   await page.getByRole('navigation').getByRole('link', { name: '새 기록', exact: true }).click()

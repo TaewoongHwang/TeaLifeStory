@@ -16,7 +16,7 @@ function diagnostics(page) {
 }
 async function start(page) {
   await page.goto(process.env.AUDIT_DEV_URL || './')
-  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔 오늘의 한 끼' })).toBeVisible()
 }
 async function create(page, name, rating = 0) {
   await nav(page, '새 기록')

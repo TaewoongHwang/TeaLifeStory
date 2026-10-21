@@ -3,7 +3,7 @@ import { nav as navigate } from './helpers/navigation.js'
 
 test('production manifest and service worker meet Chromium installability checks', async ({ page, context }) => {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔 오늘의 한 끼' })).toBeVisible()
   await page.evaluate(async () => { await navigator.serviceWorker.ready })
   await page.reload()
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
@@ -20,7 +20,7 @@ test('install request survives route changes; dismissals, failures and installat
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔 오늘의 한 끼' })).toBeVisible()
   // OS installation cannot run headlessly. Exercise the browser event contract.
   async function requestInstall(fail = false) {
     await page.evaluate((fail) => {

@@ -20,7 +20,7 @@ function diagnostics(page) {
 
 async function start(page) {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔 오늘의 한 끼' })).toBeVisible()
 }
 
 async function loadedImage(image) {

@@ -168,7 +168,8 @@ main {
   margin-top: 28px;
   padding-bottom: env(safe-area-inset-bottom);
   color: var(--muted);
-  font-size: 11px;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.8;
   text-align: center;
 }
@@ -636,8 +637,9 @@ main {
   margin-bottom: 15px;
 }
 .home-footer small {
-  font-size: 8px;
-  letter-spacing: 2px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 1px;
   color: var(--muted);
 }
 .empty-state {

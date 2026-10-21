@@ -37,7 +37,7 @@ test('initial database seeds configurable options once, with no sample entries',
   assert.equal((await db.get('categories', 'categories-1')).name, '백차')
   assert.equal((await db.get('categories', 'categories-4')).name, '홍차')
   assert.equal((await db.get('categories', 'categories-7')).name, '블렌딩차')
-  assert.equal(await db.get('categories', 'categories-6'), undefined)
+  assert.equal((await db.get('categories', 'categories-6')).name, '보이차')
   assert.equal((await db.getAll('tools')).length, defaults.tools.length)
   assert.equal((await db.getAll('materials')).length, defaults.materials.length)
 })

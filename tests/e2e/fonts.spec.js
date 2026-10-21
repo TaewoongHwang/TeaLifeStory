@@ -18,7 +18,7 @@ function diagnostics(page) {
 
 async function start(page) {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '오늘의 한 잔 오늘의 한 끼' })).toBeVisible()
 }
 
 async function loadedWeights(page) {
@@ -105,7 +105,7 @@ test('local Pretendard WOFF2 is rendered at multiple weights and survives a fres
   const offlineIssues = diagnostics(offlinePage)
   const offlineFont = offlinePage.waitForResponse((response) => response.url() === fontURL)
   await offlinePage.goto(appURL)
-  await expect(offlinePage.getByRole('heading', { name: '오늘의 한 잔, 오늘의 한 끼.' })).toBeVisible()
+  await expect(offlinePage.getByRole('heading', { name: '오늘의 한 잔 오늘의 한 끼' })).toBeVisible()
   expect((await offlineFont).fromServiceWorker()).toBe(true)
   for (const result of await loadedWeights(offlinePage)) expect(result.statuses).toEqual(['loaded'])
   await expect(offlinePage.getByText(/오프라인 ·/)).toBeVisible()
