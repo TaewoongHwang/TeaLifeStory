@@ -4,7 +4,9 @@
 
 ## 1. 이번 작업과 workspace 상태
 
-2026-10-27 상단·푸터 영문 공개 배포 진행: 사용자가 검증된 상단 Hello My Soul/푸터 Say Hello To Your Soul 변경의 공개 배포를 요청했다. HomeView.vue의 두 텍스트와 관련 명세·계획만 기존 main → Actions → Pages로 반영한다. 원격/로컬 main 기준 73f4db7 일치를 확인했으며 배포 설정·글자 크기·저장 구조 변경은 없다. 이번 배포의 검사·공개 검증 결과는 완료 후 보완한다.
+2026-10-27 상단·푸터 영문 공개 배포 완료: 사용자가 검증된 상단 Hello My Soul/푸터 Say Hello To Your Soul 변경의 공개 배포를 요청했다. HomeView.vue의 두 텍스트와 관련 명세·계획만 기존 main → Actions → Pages로 반영했다. 원격/로컬 main 기준 73f4db7 일치를 확인했으며 배포 설정·글자 크기·저장 구조 변경은 없다. 이번 배포 요청에서 npm run lint·npm run build(97모듈·루트 PWA 42개 3053.01KiB)가 통과했다. 배포 소스 1dc9f6563c093c867f9cf96924d638f778ace604의 [Actions run 40450388789](https://github.com/TaewoongHwang/TeaLifeStory/actions/runs/40450388789) build/deploy 모두 success. CI 린트·단위 38개·전체 Chromium 48개(1.6분)·Pages 빌드(97모듈·PWA 42개 3053.27KiB)가 통과했다.
+
+실제 공개 주소 검증: 격리된 Chromium의 360×640, 390×844, 430×640, 1280×900에서 상단 Hello My Soul/푸터 Say Hello To Your Soul이 정확하고 하단 16px/저작권 14px·기존 헤더/메인 문구가 유지됨을 확인했다. 가로 넘침 없음·푸터가 하단 메뉴에 가리지 않음·온라인 준비 후 오프라인 새로고침도 통과했다. runtime/console/asset 오류 없음. 보고서/캡처는 test-results/oct27-greeting-public에 보관한다. 실제 사용자 데이터와 iOS/Android 실기기 설치/키보드는 사용·검증하지 않았다. 이번 배포 결과만 [skip ci] 문서 커밋으로 보완하며 아래 로컬 기록은 당시 상태다.
 
 2026-10-27 상단·푸터 영문 조정·로컬 검증 완료: 사용자의 연속 요청을 반영해 HomeView.vue의 상단 소개를 Hello My Soul, 맨 아래 영문을 Say Hello To Your Soul로 변경했다. 두 텍스트와 명세만 맞췄고 현재 글자 크기·헤더/제목·저작권·저장 동작은 유지한다. 이번 요청에서 npm run build(97모듈·PWA 42개 3053.01KiB)·npm run lint가 통과했다. 격리된 루트 production Chromium의 360×640, 390×844, 430×640, 1280×900에서 정확한 두 문구·푸터 16px/저작권 14px 유지·화면 넘침 없음·푸터가 하단 메뉴에 가리지 않음과 오프라인 새로고침을 확인했다. runtime/console/asset 오류 없음. 보고서/캡처는 test-results/oct27-greeting-local에 보관한다. 단순 텍스트 변경으로 전용 테스트를 추가하지 않았고 전체 단위/E2E·실기기 설치는 이번에 재검증하지 않았다. 실제 사용자 데이터와 공개 배포는 사용·실행하지 않았다.
 
